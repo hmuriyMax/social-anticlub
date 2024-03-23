@@ -1,0 +1,29 @@
+syntax = "proto3";
+package social_anti_club;
+option go_package = "/user_service";
+
+import "google/type/date.proto";
+
+message Token{
+  string token = 1;
+  int64 expires = 2;
+}
+
+message LoginInfo{
+  int64 userID = 1;
+  Token token = 2;
+}
+
+message UserInfo{
+  enum Gender {
+    UNSET = 0;
+    MALE = 1;
+    FEMALE = 2;
+  }
+  string name = 1;
+  string surname = 2;
+  google.type.Date birthday = 3;
+  Gender gender = 4;
+  string hobbies = 5;
+  string home_town = 6 [json_name = "home_town"];
+}

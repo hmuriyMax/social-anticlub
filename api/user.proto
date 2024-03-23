@@ -1,0 +1,62 @@
+syntax = "proto3";
+package social_anti_club;
+option go_package = "/user_service";
+
+import "google/api/annotations.proto";
+import "api/user_models.proto";
+
+service UserService {
+  rpc Auth(AuthRequest) returns (AuthResponse) {
+    option (google.api.http) = {
+      post: "/login"
+      body: "*"
+    };
+  }
+
+  rpc Register(RegRequest) returns (RegResponse) {
+    option (google.api.http) = {
+      post: "/user/register"
+      body: "*"
+    };
+  }
+
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {
+      post: "/user/get"
+      body: "*"
+    };
+  }
+}
+
+message AuthRequest {
+  string login = 1;
+  string pass = 2;
+}
+
+message AuthResponse {
+  LoginInfo user = 2;
+}
+
+message RegRequest {
+  string login = 1;
+  string pass = 2;
+  UserInfo info = 3;
+}
+
+message RegResponse {
+  enum RegStatus {
+    Success = 0; // successful
+    InsecurePass = 1; // insecure
+    AlreadyExists = 2; // already exists
+  }
+  RegStatus status = 1;
+  LoginInfo user = 2;
+}
+
+message GetUserRequest {
+  int64 userID = 1;
+}
+
+message GetUserResponse {
+  UserInfo user = 1;
+}
