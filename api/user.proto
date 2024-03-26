@@ -38,7 +38,6 @@ message AuthResponse {
 }
 
 message RegRequest {
-  string login = 1;
   string pass = 2;
   UserInfo info = 3;
 }
@@ -50,7 +49,8 @@ message RegResponse {
     AlreadyExists = 2; // already exists
   }
   RegStatus status = 1;
-  LoginInfo user = 2;
+  int64 userID = 2;
+  string login = 3;
 }
 
 message GetUserRequest {

@@ -17,7 +17,7 @@ type Config struct {
 		DB       string `yaml:"db"`
 		User     string `yaml:"user"`
 		Pass     string `yaml:"pass"`
-		PoolSize int    `yaml:"pool"`
+		PoolSize int32  `yaml:"pool_size"`
 	} `yaml:"pg"`
 
 	Server struct {

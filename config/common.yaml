@@ -2,7 +2,7 @@ pg:
   host: 127.0.0.1
   port: 5432
   db: social
-  user: ''
+  user: 'mshchemilkin'
   pass: ''
   pool_size: 10
 

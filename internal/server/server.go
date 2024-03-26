@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"golang.org/x/net/http2"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -52,7 +53,13 @@ func (s *Server) Start(ctx context.Context) error {
 	errChan := make(chan error, 1)
 
 	go func(ctx context.Context) {
-		err := s.httpServer.ListenAndServe()
+		err := http2.ConfigureServer(s.httpServer, &http2.Server{})
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		err = s.httpServer.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errChan <- fmt.Errorf("failed to start httpServer: %w", err)
 		}

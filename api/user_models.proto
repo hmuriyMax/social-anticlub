@@ -21,9 +21,9 @@ message UserInfo{
     FEMALE = 2;
   }
   string name = 1;
-  string surname = 2;
+  optional string surname = 2;
   google.type.Date birthday = 3;
-  Gender gender = 4;
-  string hobbies = 5;
-  string home_town = 6 [json_name = "home_town"];
+  optional Gender gender = 4;
+  optional string hobbies = 5;
+  optional string hometown = 6 [json_name = "hometown"];
 }
