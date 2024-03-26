@@ -28,13 +28,13 @@ func NewServer(ctx context.Context, userService user_service.UserServiceServer) 
 		grpcPort = config.GetFromCtx(ctx).Server.GRPCPort
 	)
 
-	grpcServer := grpc.NewServer()
-	user_service.RegisterUserServiceServer(grpcServer, userService)
+	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(errLogger))
 
 	rs := &Server{
 		httpServer: &http.Server{
-			Addr:    ":" + httpPort,
-			Handler: grpcServer,
+			Addr:     ":" + httpPort,
+			Handler:  grpcServer,
+			ErrorLog: log.Default(),
 		},
 		grpcServer: grpcServer,
 		grpcPort:   grpcPort,
@@ -63,7 +63,7 @@ func (s *Server) Start(ctx context.Context) error {
 			KeepAlive: 5 * time.Second,
 		}
 
-		lis, err := listener.Listen(ctx, "tcp", fmt.Sprintf("localhost:%s", s.grpcPort))
+		lis, err := listener.Listen(ctx, "tcp4", fmt.Sprintf("localhost:%s", s.grpcPort))
 		if err != nil {
 			errChan <- fmt.Errorf("failed to listen: %w", err)
 		}
@@ -83,7 +83,7 @@ func (s *Server) Start(ctx context.Context) error {
 			return err
 		}
 		s.grpcServer.GracefulStop()
-		log.Panicln("server gracefully stopped")
+		log.Println("server gracefully stopped")
 
 	case err := <-errChan:
 		return fmt.Errorf("failed to start: %w", err)

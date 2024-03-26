@@ -1,9 +1,9 @@
 pg:
   host: 127.0.0.1
   port: 5432
-  db: users
-  user: service-user
-  pass: 'x2bhgn6k7n7cv'
+  db: social
+  user: ''
+  pass: ''
   pool_size: 10
 
 server:
