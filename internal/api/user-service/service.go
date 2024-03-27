@@ -9,7 +9,9 @@ import (
 
 type usersProvider interface {
 	Register(ctx context.Context, request *model.RegisterRequest) (*model.RegisterResponse, error)
-	Login(ctx context.Context, login uuid.UUID, password string) (*model.LoginResult, error)
+	Login(ctx context.Context, login uuid.UUID, password string) (*model.LoginInfo, error)
+	CheckAuth(ctx context.Context, userID int64, tokenString string) error
+	GetUserInfo(ctx context.Context, userID int64) (*model.UserInfo, error)
 }
 
 type Implementation struct {

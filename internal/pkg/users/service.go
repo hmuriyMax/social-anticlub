@@ -9,10 +9,15 @@ import (
 
 type userRepository interface {
 	pg.Connector
-	UserInfoCreate(ctx context.Context, info *model.UserInfo) (userID int64, err error)
+
+	UserInfoInsert(ctx context.Context, info *model.UserInfo) (userID int64, err error)
+	UserInfoSelect(ctx context.Context, userID int64) (info *model.UserInfo, err error)
+
 	UserAuthInsert(ctx context.Context, auth *model.Login) error
 	UserAuthSelect(ctx context.Context, login uuid.UUID) (*model.Login, error)
-	LoginInfoInsert(ctx context.Context, res *model.LoginResult) error
+
+	LoginInfoInsert(ctx context.Context, res *model.LoginInfo) error
+	LoginInfoSelect(ctx context.Context, token string) (*model.LoginInfo, error)
 }
 
 type Service struct {

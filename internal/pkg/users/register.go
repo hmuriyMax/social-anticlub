@@ -17,9 +17,9 @@ func (s *Service) Register(ctx context.Context, request *model.RegisterRequest) 
 	execErr := s.repo.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
 
-		userID, err = s.repo.UserInfoCreate(ctx, request.UserInfo)
+		userID, err = s.repo.UserInfoInsert(ctx, request.UserInfo)
 		if err != nil {
-			return fmt.Errorf("repo.UserInfoCreate: %w", err)
+			return fmt.Errorf("repo.UserInfoInsert: %w", err)
 		}
 
 		userUUID, err = uuid.NewRandom()

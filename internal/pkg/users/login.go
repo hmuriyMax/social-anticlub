@@ -9,10 +9,11 @@ import (
 	"socialanticlub/internal/pkg/config"
 	"socialanticlub/internal/pkg/passwork"
 	"socialanticlub/internal/pkg/users/model"
+	"strconv"
 	"time"
 )
 
-func (s *Service) Login(ctx context.Context, login uuid.UUID, password string) (*model.LoginResult, error) {
+func (s *Service) Login(ctx context.Context, login uuid.UUID, password string) (*model.LoginInfo, error) {
 	loginInfo, err := s.repo.UserAuthSelect(ctx, login)
 	if err != nil {
 		return nil, fmt.Errorf("repo.UserAuthSelect: %w", err)
@@ -27,9 +28,9 @@ func (s *Service) Login(ctx context.Context, login uuid.UUID, password string) (
 
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
-		jwt.MapClaims{
-			"id":  loginInfo.ID,
-			"exp": time.Now().Add(config.GlobalConfig.UserService.TokenExpiration).Unix(),
+		&jwt.StandardClaims{
+			Id:        strconv.FormatInt(loginInfo.ID, 10),
+			ExpiresAt: time.Now().Add(config.GlobalConfig.UserService.TokenExpiration).Unix(),
 		},
 	)
 
@@ -38,7 +39,7 @@ func (s *Service) Login(ctx context.Context, login uuid.UUID, password string) (
 		return nil, fmt.Errorf("token.SignedString: %w", err)
 	}
 
-	res := &model.LoginResult{
+	res := &model.LoginInfo{
 		ID:    loginInfo.ID,
 		Token: tokenString,
 	}

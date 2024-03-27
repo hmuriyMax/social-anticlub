@@ -31,7 +31,7 @@ func NewServer(ctx context.Context, userService user_service.UserServiceServer) 
 		grpcPort = config.GetFromCtx(ctx).Server.GRPCPort
 	)
 
-	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(errLogger))
+	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(errLogger, authParser))
 
 	rs := &Server{
 		httpServer: &http.Server{

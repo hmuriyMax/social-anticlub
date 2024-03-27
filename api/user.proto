@@ -59,4 +59,5 @@ message GetUserRequest {
 
 message GetUserResponse {
   UserInfo user = 1;
+  bool is_owner = 2;
 }

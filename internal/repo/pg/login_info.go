@@ -7,7 +7,7 @@ import (
 	"socialanticlub/internal/pkg/users/model"
 )
 
-func (s *Storage) LoginInfoInsert(ctx context.Context, res *model.LoginResult) error {
+func (s *Storage) LoginInfoInsert(ctx context.Context, res *model.LoginInfo) error {
 	query := `insert into login_info (user_id, token) values ($1, $2)`
 
 	conn, err := s.conn(ctx)
@@ -17,4 +17,20 @@ func (s *Storage) LoginInfoInsert(ctx context.Context, res *model.LoginResult) e
 
 	_, err = conn.Exec(ctx, query, res.ID, res.Token)
 	return errors.Wrap(err, "Exec")
+}
+
+func (s *Storage) LoginInfoSelect(ctx context.Context, token string) (*model.LoginInfo, error) {
+	query := `select user_id from login_info where token = $1`
+
+	conn, err := s.conn(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get connection: %w", err)
+	}
+
+	var userID int64
+	err = conn.QueryRow(ctx, query, token).Scan(&userID)
+	return &model.LoginInfo{
+		ID:    userID,
+		Token: token,
+	}, errors.Wrap(err, "QueryRow")
 }
