@@ -9,6 +9,8 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
 	"socialanticlub/internal/pb/user_service"
 	"socialanticlub/internal/pkg/config"
 	"time"
@@ -83,17 +85,27 @@ func (s *Server) Start(ctx context.Context) error {
 
 	log.Printf("started server at %s", s.httpServer.Addr)
 
+	signalsChan := make(chan os.Signal, 1)
+	signal.Notify(signalsChan, os.Interrupt)
+
 	select {
-	case <-ctx.Done():
-		err := s.httpServer.Shutdown(context.Background())
-		if err != nil {
-			return err
-		}
-		s.grpcServer.GracefulStop()
-		log.Println("server gracefully stopped")
+	case <-signalsChan:
+		log.Println("got interrupt signal. Stopping")
+		cancelFunc()
 
 	case err := <-errChan:
 		return fmt.Errorf("failed to start: %w", err)
+
+	case <-ctx.Done():
+		break
 	}
+
+	err := s.httpServer.Shutdown(context.Background())
+	if err != nil {
+		return fmt.Errorf("shutdown failed: %w", err)
+	}
+	log.Println("HTTP server gracefully stopped")
+	s.grpcServer.GracefulStop()
+	log.Println("GRPC server gracefully stopped")
 	return nil
 }

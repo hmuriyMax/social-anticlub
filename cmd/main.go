@@ -11,19 +11,19 @@ import (
 )
 
 func main() {
-	log.Println("Starting app")
+	log.Println("starting app")
 	ctx := context.Background()
 
 	cnf, err := config.NewConfig("./config/common.yaml")
 	if err != nil {
-		log.Fatalf("Failed to create config: %v", err)
+		log.Fatalf("failed to create config: %v", err)
 	}
 
 	ctx = config.SetToCtx(ctx, cnf)
 
 	pgRepo, err := pg.NewClient(ctx)
 	if err != nil {
-		log.Fatalf("Failed to create pg client: %v", err)
+		log.Fatalf("failed to create pg client: %v", err)
 	}
 
 	userService := users.NewService(pgRepo)
@@ -35,7 +35,7 @@ func main() {
 
 	err = srv.Start(ctx)
 	if err != nil {
-		log.Printf("Server stopped: %v", err)
+		log.Printf("server stopped: %v", err)
 	}
 
 }
