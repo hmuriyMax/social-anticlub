@@ -70,7 +70,7 @@ func (s *Server) Start(ctx context.Context) error {
 			KeepAlive: 5 * time.Second,
 		}
 
-		lis, err := listener.Listen(ctx, "tcp4", fmt.Sprintf("localhost:%s", s.grpcPort))
+		lis, err := listener.Listen(ctx, "tcp", fmt.Sprintf(":%s", s.grpcPort))
 		if err != nil {
 			errChan <- fmt.Errorf("failed to listen: %w", err)
 		}

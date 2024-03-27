@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	log.Println("Starting app")
 	ctx := context.Background()
 
 	cnf, err := config.NewConfig("./config/common.yaml")
@@ -34,7 +35,7 @@ func main() {
 
 	err = srv.Start(ctx)
 	if err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+		log.Printf("Server stopped: %v", err)
 	}
 
 }

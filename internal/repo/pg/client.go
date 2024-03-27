@@ -12,19 +12,6 @@ type Storage struct {
 }
 
 func NewClient(ctx context.Context) (*Storage, error) {
-	//pgConfig := &pgxpool.Config{
-	//	ConnConfig: &pgx.ConnConfig{
-	//		Config: pgconn.Config{
-	//			Host:     config.GetFromCtx(ctx).PG.Host,
-	//			Port:     config.GetFromCtx(ctx).PG.Port,
-	//			Database: config.GetFromCtx(ctx).PG.DB,
-	//			User:     config.GetFromCtx(ctx).PG.User,
-	//			Password: config.GetFromCtx(ctx).PG.Pass,
-	//		},
-	//	},
-	//	MaxConns: config.GetFromCtx(ctx).PG.PoolSize,
-	//}
-
 	connStr := fmt.Sprintf("user='%s' password='%s' host=%s port=%d dbname=%s pool_max_conns=%d",
 		config.GetFromCtx(ctx).PG.User,
 		config.GetFromCtx(ctx).PG.Pass,
@@ -39,7 +26,11 @@ func NewClient(ctx context.Context) (*Storage, error) {
 		return nil, fmt.Errorf("failed to create pool: %w", err)
 	}
 
+	if err = pool.Ping(ctx); err != nil {
+		return nil, fmt.Errorf("failed to ping pool: %w", err)
+	}
+
 	return &Storage{
 		pool: pool,
-	}, pool.Ping(ctx)
+	}, nil
 }

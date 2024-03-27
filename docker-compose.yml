@@ -1,21 +1,65 @@
-version: '3.9'
-services:
+version: '3.8'
+networks:
   social-anti-club:
-    build: ./
-    command: ./main
-    ports:
-      - 8000:8000
-    depends_on:
-      - db
-    environment:
-      - DB_PASSWORD=qwerty
+    driver: bridge
 
+services:
   db:
-    restart: always
+    container_name: postgres
+    restart: on-failure
     image: postgres:latest
-    volumes:
-      - .:/docker-entrypoint-initdb
     environment:
       - POSTGRES_PASSWORD=qwerty
+      - POSTGRES_USER=social
+      - POSTGRES_DB=social
+      - PGDATA=/var/pg
+      - DATABASE_HOST=127.0.0.1
     ports:
       - "5436:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U social -d social" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - social-anti-club
+
+  social-anti-club:
+    container_name: app
+    build:
+      context: .
+      dockerfile: "./Dockerfile"
+    entrypoint: "/app/main"
+    restart: on-failure
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:1244"
+      - "8080:8080"
+    networks:
+      - social-anti-club
+
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: on-failure
+    ports:
+      - "8084:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - social-anti-club
+
+  migrator:
+    container_name: migrator
+    image: migrate/migrate
+    command: [ "-database", "postgres://social:qwerty@db:5432/social?sslmode=disable", "-path", "/migrations", "up" ]
+    volumes:
+      - $PWD/migrations:/migrations
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - social-anti-club

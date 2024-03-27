@@ -2,7 +2,9 @@ package user_service
 
 import (
 	"context"
+	"fmt"
 	"github.com/pkg/errors"
+	"google.golang.org/genproto/googleapis/type/date"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"socialanticlub/internal/helpers"
@@ -59,6 +61,22 @@ func validateRegister(req *proto.RegRequest) error {
 		return errors.New("name is required")
 	case req.Info.Birthday == nil:
 		return errors.New("birthday is required")
+	case validateDate(req.Info.Birthday) != nil:
+		return fmt.Errorf("invalid birthday: %w", validateDate(req.Info.Birthday))
+	}
+	return nil
+}
+
+func validateDate(val *date.Date) error {
+	switch {
+	case val == nil:
+		return errors.New("date is nil")
+	case val.GetYear() < 1800 || val.GetYear() > int32(time.Now().Year()):
+		return errors.New("invalid year")
+	case val.GetMonth() < 1 || val.GetMonth() > 12:
+		return errors.New("invalid month")
+	case val.GetDay() < 1 || val.GetDay() > 31:
+		return errors.New("invalid day")
 	}
 	return nil
 }
