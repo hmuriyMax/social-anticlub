@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
+	"time"
 )
 
 const configKey = "config"
@@ -24,7 +25,14 @@ type Config struct {
 		HTTPPort string `yaml:"http_port"`
 		GRPCPort string `yaml:"grpc_port"`
 	} `yaml:"server"`
+
+	UserService struct {
+		TokenExpiration time.Duration `yaml:"token_expiration"`
+		JWTSecret       string        `yaml:"token_secret"`
+	} `yaml:"user_service"`
 }
+
+var GlobalConfig *Config
 
 // NewConfig returns a new decoded Config struct
 func NewConfig(configPath string) (*Config, error) {
@@ -47,6 +55,8 @@ func NewConfig(configPath string) (*Config, error) {
 	if err = d.Decode(&config); err != nil {
 		return nil, err
 	}
+
+	GlobalConfig = config
 
 	return config, nil
 }
