@@ -53,7 +53,7 @@ message RegResponse {
 }
 
 message GetUserRequest {
-  string userID = 1;
+  string identifier = 1;
 }
 
 message GetUserResponse {

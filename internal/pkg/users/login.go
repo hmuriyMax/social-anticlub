@@ -25,7 +25,7 @@ func (s *Service) Login(ctx context.Context, login uuid.UUID, password string) (
 	}
 
 	token := jwt.NewWithClaims(
-		jwt.SigningMethodES256,
+		SigningMethod,
 		&jwt.StandardClaims{
 			Id:        loginInfo.UserUUID.String(),
 			ExpiresAt: time.Now().Add(config.GlobalConfig.UserService.TokenExpiration).Unix(),

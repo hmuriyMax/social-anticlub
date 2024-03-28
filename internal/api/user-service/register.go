@@ -20,6 +20,7 @@ func (i *Implementation) Register(ctx context.Context, req *proto.RegRequest) (*
 
 	registerReq := &model.RegisterRequest{
 		UserInfo: &model.UserInfo{
+			Nickname:   req.Info.Nickname,
 			FirstName:  req.Info.Name,
 			SecondName: req.Info.Surname,
 			Birthday: time.Date(
@@ -58,6 +59,8 @@ func validateRegister(req *proto.RegRequest) error {
 		return errors.New("info is required")
 	case req.Info.Name == "":
 		return errors.New("name is required")
+	case len(req.Info.Nickname) < 3 || len(req.Info.Nickname) > 15:
+		return errors.New("invalid nickname")
 	case req.Info.Birthday == nil:
 		return errors.New("birthday is required")
 	case validateDate(req.Info.Birthday) != nil:

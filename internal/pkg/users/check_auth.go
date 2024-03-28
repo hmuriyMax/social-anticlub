@@ -9,9 +9,11 @@ import (
 	"socialanticlub/internal/pkg/users/model"
 )
 
+var SigningMethod = jwt.SigningMethodHS256
+
 func (s *Service) CheckAuth(userUUID uuid.UUID, tokenString string) error {
 	token, err := jwt.ParseWithClaims(tokenString, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
-		if t.Method != jwt.SigningMethodES256 {
+		if t.Method != SigningMethod {
 			return nil, model.ErrTokenInvalid
 		}
 		return []byte(config.GlobalConfig.UserService.JWTSecret), nil

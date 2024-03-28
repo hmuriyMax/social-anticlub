@@ -20,5 +20,6 @@ message UserInfo{
   google.type.Date birthday = 3;
   optional Gender gender = 4;
   optional string hobbies = 5;
-  optional string hometown = 6 [json_name = "hometown"];
+  optional string hometown = 6;
+  string nickname = 7;
 }

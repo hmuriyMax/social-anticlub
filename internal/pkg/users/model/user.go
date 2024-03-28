@@ -17,6 +17,7 @@ type (
 	Gender   int8
 	UserInfo struct {
 		UUID       uuid.UUID `db:"user_uuid"`
+		Nickname   string    `db:"nickname"`
 		FirstName  string    `db:"first_name"`
 		SecondName *string   `db:"second_name"`
 		Birthday   time.Time `db:"birthday"`

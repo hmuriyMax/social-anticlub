@@ -22,12 +22,18 @@ func (i *Implementation) GetUser(ctx context.Context, req *user_service.GetUserR
 		return nil, status.Error(codes.Unauthenticated, err.Error())
 	}
 
-	userUUID, err := uuid.Parse(req.UserID)
+	var (
+		nick     *string
+		userUUID *uuid.UUID
+	)
+	parsedUUID, err := uuid.Parse(req.GetIdentifier())
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		nick = helpers.Ptr(req.GetIdentifier())
+	} else {
+		userUUID = &parsedUUID
 	}
 
-	userInfo, err := i.usersProvider.GetUserInfo(ctx, userUUID)
+	userInfo, err := i.usersProvider.GetUserInfo(ctx, userUUID, nick)
 	if err != nil {
 		switch {
 		case errors.Is(err, model.ErrNoUser):
@@ -70,7 +76,7 @@ func validateGetUser(req *user_service.GetUserRequest) error {
 	switch {
 	case req == nil:
 		return errors.New("user id required")
-	case len(req.GetUserID()) == 0:
+	case len(req.GetIdentifier()) == 0:
 		return errors.New("user id required")
 	}
 	return nil

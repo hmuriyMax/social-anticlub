@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-func (s *Service) GetUserInfo(ctx context.Context, userUUID uuid.UUID) (*model.UserInfo, error) {
-	user, err := s.repo.UserInfoSelect(ctx, userUUID)
+func (s *Service) GetUserInfo(ctx context.Context, userUUID *uuid.UUID, nick *string) (*model.UserInfo, error) {
+	user, err := s.repo.UserInfoSelect(ctx, userUUID, nick)
 	if err != nil {
 		return nil, fmt.Errorf("repo.UserInfoSelect: %w", err)
 	}
