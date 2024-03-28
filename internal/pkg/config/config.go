@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
+	"socialanticlub/internal/helpers"
 	"time"
 )
 
@@ -38,7 +39,7 @@ var GlobalConfig *Config
 func NewConfig(configPath string) (*Config, error) {
 	config := &Config{}
 
-	file, err := os.Open(configPath)
+	file, err := os.Open(fmt.Sprintf("%s/%s.yaml", configPath, helpers.GetEnv()))
 	if err != nil {
 		return nil, fmt.Errorf("failed to open config file: %w", err)
 	}

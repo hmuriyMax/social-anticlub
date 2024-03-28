@@ -10,7 +10,7 @@ import (
 type usersProvider interface {
 	Register(ctx context.Context, request *model.RegisterRequest) (*model.RegisterResponse, error)
 	Login(ctx context.Context, login uuid.UUID, password string) (*model.TokenInfo, error)
-	CheckAuth(ctx context.Context, userUUID uuid.UUID, tokenString string) error
+	CheckAuth(userUUID uuid.UUID, tokenString string) error
 	GetUserInfo(ctx context.Context, userUUID uuid.UUID) (*model.UserInfo, error)
 }
 

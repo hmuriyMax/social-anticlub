@@ -1,0 +1,15 @@
+pg:
+  host:
+  port:
+  db:
+  user:
+  pass:
+  pool_size:
+
+server:
+  http_port:
+  grpc_port:
+
+user_service:
+  token_expiration:
+  token_secret:

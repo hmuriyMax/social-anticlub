@@ -4,17 +4,19 @@ import (
 	"context"
 	"log"
 	user_service "socialanticlub/internal/api/user-service"
+	"socialanticlub/internal/helpers"
 	"socialanticlub/internal/pkg/config"
 	"socialanticlub/internal/pkg/users"
 	"socialanticlub/internal/repo/pg"
 	"socialanticlub/internal/server"
+	"strings"
 )
 
 func main() {
-	log.Println("starting app")
+	log.Printf("starting app (%s)", strings.ToTitle(helpers.GetEnv()))
 	ctx := context.Background()
 
-	cnf, err := config.NewConfig("./config/common.yaml")
+	cnf, err := config.NewConfig("./config")
 	if err != nil {
 		log.Fatalf("failed to create config: %v", err)
 	}

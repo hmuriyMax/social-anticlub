@@ -15,9 +15,6 @@ type userRepository interface {
 
 	UserAuthInsert(ctx context.Context, auth *model.Login) error
 	UserAuthSelect(ctx context.Context, login uuid.UUID) (*model.Login, error)
-
-	LoginInfoInsert(ctx context.Context, res *model.TokenInfo) error
-	LoginInfoSelect(ctx context.Context, token string) (*model.TokenInfo, error)
 }
 
 type Service struct {

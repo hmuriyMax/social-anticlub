@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"socialanticlub/internal/pkg/config"
 	"socialanticlub/internal/pkg/passwork"
 	"socialanticlub/internal/pkg/users/model"
@@ -26,10 +25,12 @@ func (s *Service) Login(ctx context.Context, login uuid.UUID, password string) (
 	}
 
 	token := jwt.NewWithClaims(
-		jwt.SigningMethodHS256,
+		jwt.SigningMethodES256,
 		&jwt.StandardClaims{
 			Id:        loginInfo.UserUUID.String(),
 			ExpiresAt: time.Now().Add(config.GlobalConfig.UserService.TokenExpiration).Unix(),
+			IssuedAt:  time.Now().Unix(),
+			Issuer:    "social-anti-club",
 		},
 	)
 
@@ -38,11 +39,8 @@ func (s *Service) Login(ctx context.Context, login uuid.UUID, password string) (
 		return nil, fmt.Errorf("token.SignedString: %w", err)
 	}
 
-	res := &model.TokenInfo{
+	return &model.TokenInfo{
 		UserUUID: loginInfo.UserUUID,
 		Token:    tokenString,
-	}
-
-	err = s.repo.LoginInfoInsert(ctx, res)
-	return res, errors.Wrap(err, "repo.LoginInfoInsert")
+	}, nil
 }
