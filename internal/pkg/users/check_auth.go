@@ -1,7 +1,6 @@
 package users
 
 import (
-	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/pkg/errors"
@@ -10,23 +9,17 @@ import (
 	"strconv"
 )
 
-func (s *Service) CheckAuth(ctx context.Context, userID int64, tokenString string) error {
-	info, err := s.repo.LoginInfoSelect(ctx, tokenString)
-	if err != nil {
-		return fmt.Errorf("repo.LoginInfoSelect: %w", err)
-	}
-
-	if info == nil {
-		return model.ErrNoUser
-	}
-
-	token, err := jwt.ParseWithClaims(info.Token, &jwt.StandardClaims{}, func(_ *jwt.Token) (interface{}, error) {
+func (s *Service) CheckAuth(userID int64, tokenString string) error {
+	token, err := jwt.ParseWithClaims(tokenString, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
+		if t.Method != jwt.SigningMethodES256 {
+			return nil, model.ErrTokenInvalid
+		}
 		return []byte(config.GlobalConfig.UserService.JWTSecret), nil
 	})
 	if err != nil {
 		var valErr *jwt.ValidationError
 		if errors.As(err, &valErr) {
-			return fmt.Errorf("%v: %w", err.Error(), model.ErrTokenInvalid)
+			return err
 		}
 		return fmt.Errorf("jwt.ParseWithClaims: %w", err)
 	}

@@ -14,7 +14,7 @@ const (
 
 type authHeaderKey struct{}
 
-func ParceIncomingAuthInfo(ctx context.Context) context.Context {
+func ParseIncomingAuthInfo(ctx context.Context) context.Context {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return ctx
