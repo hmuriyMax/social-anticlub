@@ -18,7 +18,9 @@ func (i *Implementation) GetUser(ctx context.Context, req *user_service.GetUserR
 
 	loginInfo := helpers.GetAuthInfo(ctx)
 	if err := i.usersProvider.CheckAuth(ctx, loginInfo.GetID(), loginInfo.GetToken()); err != nil {
-		if errors.Is(err, model.ErrTokenInvalid) || errors.Is(err, model.ErrTokenExpired) {
+		if errors.Is(err, model.ErrTokenInvalid) ||
+			errors.Is(err, model.ErrTokenExpired) ||
+			errors.Is(err, model.ErrNoUser) {
 			return nil, status.Error(codes.Unauthenticated, err.Error())
 		}
 		return nil, status.Error(codes.Internal, err.Error())

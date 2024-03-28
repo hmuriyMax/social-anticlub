@@ -3,7 +3,7 @@ package pg
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 )
 
@@ -19,7 +19,13 @@ type Connector interface {
 }
 
 func (s *Storage) ExecTx(ctx context.Context, action func(ctx context.Context) error) error {
-	tx, err := s.pool.Begin(ctx)
+	conn, err := s.conn(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get connection: %w", err)
+	}
+	defer conn.Release()
+
+	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
@@ -35,14 +41,14 @@ func (s *Storage) ExecTx(ctx context.Context, action func(ctx context.Context) e
 	return errors.Wrap(tx.Commit(ctx), "failed to commit transaction")
 }
 
-func (s *Storage) conn(ctx context.Context) (*pgx.Conn, error) {
-	conn, ok := ctx.Value(ctxConnKey{}).(*pgx.Conn)
+func (s *Storage) conn(ctx context.Context) (*pgxpool.Conn, error) {
+	conn, ok := ctx.Value(ctxConnKey{}).(*pgxpool.Conn)
 	if !ok {
 		poolConn, err := s.pool.Acquire(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("failed to acquire connection from pool: %w", err)
 		}
-		return poolConn.Conn(), nil
+		return poolConn, nil
 
 	}
 	return conn, nil
