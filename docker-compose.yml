@@ -34,6 +34,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+      adminer:
+        condition: service_started
     ports:
       - "5000:1244"
       - "8080:8080"
@@ -49,6 +53,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
     networks:
       - social-anti-club
 
