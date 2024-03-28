@@ -16,6 +16,7 @@ func (s *Storage) LoginInfoInsert(ctx context.Context, res *model.TokenInfo) err
 	if err != nil {
 		return fmt.Errorf("failed to get connection: %w", err)
 	}
+	defer conn.Release()
 
 	_, err = conn.Exec(ctx, query, res.UserUUID, res.Token)
 	return errors.Wrap(err, "Exec")
@@ -28,6 +29,7 @@ func (s *Storage) LoginInfoSelect(ctx context.Context, token string) (*model.Tok
 	if err != nil {
 		return nil, fmt.Errorf("failed to get connection: %w", err)
 	}
+	defer conn.Release()
 
 	var userID uuid.UUID
 	err = conn.QueryRow(ctx, query, token).Scan(&userID)

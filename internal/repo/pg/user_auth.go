@@ -16,6 +16,7 @@ func (s *Storage) UserAuthInsert(ctx context.Context, auth *model.Login) error {
 	if err != nil {
 		return fmt.Errorf("failed to get connection: %w", err)
 	}
+	defer conn.Release()
 
 	_, err = conn.Exec(ctx, query, auth.UserUUID, auth.PassHash)
 	return errors.Wrap(err, "Exec")
@@ -28,12 +29,12 @@ func (s *Storage) UserAuthSelect(ctx context.Context, login uuid.UUID) (*model.L
 	if err != nil {
 		return nil, err
 	}
+	defer conn.Release()
 
 	var auth model.Login
 	err = conn.QueryRow(ctx, query, login).Scan(&auth.UserUUID, &auth.PassHash)
 	if err != nil && errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
-
 	return &auth, errors.Wrap(err, "QueryRow")
 }

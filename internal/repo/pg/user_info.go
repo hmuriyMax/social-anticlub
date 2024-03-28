@@ -16,6 +16,7 @@ func (s *Storage) UserInfoInsert(ctx context.Context, info *model.UserInfo) (use
 	if err != nil {
 		return uuid.Nil, err
 	}
+	defer conn.Release()
 
 	err = conn.QueryRow(ctx, query, info.FirstName, info.SecondName, info.Birthday, info.Gender, info.HomeTown, info.About).Scan(&userUUID)
 	return
@@ -28,6 +29,7 @@ func (s *Storage) UserInfoSelect(ctx context.Context, userUUID uuid.UUID) (info 
 	if err != nil {
 		return nil, fmt.Errorf("failed to get connection: %w", err)
 	}
+	defer conn.Release()
 
 	info = &model.UserInfo{}
 	err = conn.
