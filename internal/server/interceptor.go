@@ -18,6 +18,6 @@ func errLogger(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, ha
 }
 
 func authParser(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-	handlerCtx := helpers.ParceIncomingAuthInfo(ctx)
+	handlerCtx := helpers.ParseIncomingAuthInfo(ctx)
 	return handler(handlerCtx, req)
 }
