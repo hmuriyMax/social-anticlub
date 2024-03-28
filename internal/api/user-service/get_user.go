@@ -2,6 +2,7 @@ package user_service
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/type/date"
 	"google.golang.org/grpc/codes"
@@ -17,14 +18,19 @@ func (i *Implementation) GetUser(ctx context.Context, req *user_service.GetUserR
 	}
 
 	loginInfo := helpers.GetAuthInfo(ctx)
-	if err := i.usersProvider.CheckAuth(ctx, loginInfo.GetID(), loginInfo.GetToken()); err != nil {
+	if err := i.usersProvider.CheckAuth(ctx, loginInfo.GetUUID(), loginInfo.GetToken()); err != nil {
 		if errors.Is(err, model.ErrTokenInvalid) || errors.Is(err, model.ErrTokenExpired) {
 			return nil, status.Error(codes.Unauthenticated, err.Error())
 		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	userInfo, err := i.usersProvider.GetUserInfo(ctx, req.GetUserID())
+	userUUID, err := uuid.Parse(req.UserID)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	userInfo, err := i.usersProvider.GetUserInfo(ctx, userUUID)
 	if err != nil {
 		switch {
 		case errors.Is(err, model.ErrNoUser):
@@ -67,7 +73,7 @@ func validateGetUser(req *user_service.GetUserRequest) error {
 	switch {
 	case req == nil:
 		return errors.New("user id required")
-	case req.GetUserID() < 1:
+	case len(req.GetUserID()) == 0:
 		return errors.New("user id required")
 	}
 	return nil

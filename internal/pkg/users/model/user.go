@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql/driver"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"time"
 )
@@ -15,7 +16,7 @@ const (
 type (
 	Gender   int8
 	UserInfo struct {
-		ID         int64     `db:"id"`
+		UUID       uuid.UUID `db:"user_uuid"`
 		FirstName  string    `db:"first_name"`
 		SecondName *string   `db:"second_name"`
 		Birthday   time.Time `db:"birthday"`

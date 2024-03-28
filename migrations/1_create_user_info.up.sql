@@ -1,6 +1,6 @@
 create table if not exists user_info
 (
-    id          bigserial primary key,
+    user_uuid   uuid not null default gen_random_uuid() primary key,
     first_name  text not null,
     second_name text,
     birthday    date not null,

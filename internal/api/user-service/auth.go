@@ -33,7 +33,7 @@ func (i *Implementation) Auth(ctx context.Context, req *user_service.AuthRequest
 	}
 	return &user_service.AuthResponse{
 		User: &user_service.LoginInfo{
-			UserID: loginInfo.ID,
+			UserID: loginInfo.UserUUID.String(),
 			Token:  loginInfo.Token,
 		},
 	}, nil

@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"socialanticlub/internal/pkg/config"
 	"socialanticlub/internal/pkg/users/model"
-	"strconv"
 	"time"
 )
 
-func (s *Service) CheckAuth(ctx context.Context, userID int64, tokenString string) error {
+func (s *Service) CheckAuth(ctx context.Context, userUUID uuid.UUID, tokenString string) error {
 	info, err := s.repo.LoginInfoSelect(ctx, tokenString)
 	if err != nil {
 		return fmt.Errorf("repo.LoginInfoSelect: %w", err)
@@ -36,7 +36,7 @@ func (s *Service) CheckAuth(ctx context.Context, userID int64, tokenString strin
 		return model.ErrTokenExpired
 	}
 
-	if id, parseErr := strconv.ParseInt(claims.Id, 10, 64); parseErr != nil || id != userID {
+	if parsedUUID, parseErr := uuid.Parse(claims.Id); parseErr != nil || parsedUUID != userUUID {
 		return fmt.Errorf("failed to parse user id: %w", model.ErrTokenInvalid)
 	}
 

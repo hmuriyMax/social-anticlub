@@ -9,7 +9,6 @@ type (
 	}
 
 	RegisterResponse struct {
-		Login  uuid.UUID
-		UserID int64
+		Login uuid.UUID
 	}
 )

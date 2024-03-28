@@ -6,24 +6,23 @@ import (
 
 type (
 	Login struct {
-		Login    uuid.UUID `db:"login"`
-		ID       int64     `db:"id"`
+		UserUUID uuid.UUID `db:"user_uuid"`
 		PassHash string    `db:"pass_hash"`
 	}
-	LoginInfo struct {
-		ID    int64  `db:"id"`
-		Token string `db:"token"`
+	TokenInfo struct {
+		UserUUID uuid.UUID `db:"user_uuid"`
+		Token    string    `db:"token"`
 	}
 )
 
-func (i *LoginInfo) GetID() int64 {
+func (i *TokenInfo) GetUUID() uuid.UUID {
 	if i == nil {
-		return 0
+		return uuid.Nil
 	}
-	return i.ID
+	return i.UserUUID
 }
 
-func (i *LoginInfo) GetToken() string {
+func (i *TokenInfo) GetToken() string {
 	if i == nil {
 		return ""
 	}

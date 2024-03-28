@@ -46,8 +46,7 @@ func (i *Implementation) Register(ctx context.Context, req *proto.RegRequest) (*
 
 	return &proto.RegResponse{
 		Status: proto.RegResponse_Success,
-		Login:  res.Login.String(),
-		UserID: res.UserID,
+		UserID: res.Login.String(),
 	}, nil
 }
 

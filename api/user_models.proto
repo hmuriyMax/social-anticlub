@@ -5,7 +5,7 @@ option go_package = "/user_service";
 import "google/type/date.proto";
 
 message LoginInfo{
-  int64 userID = 1;
+  string userID = 1;
   string token = 2;
 }
 

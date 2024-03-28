@@ -3,13 +3,14 @@ package users
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"socialanticlub/internal/helpers"
 	"socialanticlub/internal/pkg/users/model"
 	"strings"
 )
 
-func (s *Service) GetUserInfo(ctx context.Context, userID int64) (*model.UserInfo, error) {
-	user, err := s.repo.UserInfoSelect(ctx, userID)
+func (s *Service) GetUserInfo(ctx context.Context, userUUID uuid.UUID) (*model.UserInfo, error) {
+	user, err := s.repo.UserInfoSelect(ctx, userUUID)
 	if err != nil {
 		return nil, fmt.Errorf("repo.UserInfoSelect: %w", err)
 	}
@@ -17,10 +18,10 @@ func (s *Service) GetUserInfo(ctx context.Context, userID int64) (*model.UserInf
 		return nil, model.ErrNoUser
 	}
 
-	requesterID := helpers.GetAuthInfo(ctx).GetID()
-	if requesterID != user.ID {
+	requesterID := helpers.GetAuthInfo(ctx).GetUUID()
+	if requesterID != user.UUID {
 		hiddenUser := &model.UserInfo{
-			ID:        user.ID,
+			UUID:      user.UUID,
 			FirstName: user.FirstName,
 		}
 		if user.SecondName != nil {
