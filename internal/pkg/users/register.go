@@ -9,12 +9,19 @@ import (
 )
 
 func (s *Service) Register(ctx context.Context, request *model.RegisterRequest) (*model.RegisterResponse, error) {
-	var (
-		userUUID uuid.UUID
-	)
+	var userUUID uuid.UUID
 
 	execErr := s.repo.ExecTx(ctx, func(ctx context.Context) error {
 		var err error
+
+		user, err := s.repo.UserInfoSelect(ctx, nil, &request.UserInfo.Nickname)
+		if err != nil {
+			return fmt.Errorf("repo.UserInfoSelect: %w", err)
+		}
+
+		if user != nil {
+			return model.ErrNicknameTaken
+		}
 
 		userUUID, err = s.repo.UserInfoInsert(ctx, request.UserInfo)
 		if err != nil {

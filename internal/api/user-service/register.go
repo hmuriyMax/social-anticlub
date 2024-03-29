@@ -42,7 +42,12 @@ func (i *Implementation) Register(ctx context.Context, req *proto.RegRequest) (*
 
 	res, err := i.usersProvider.Register(ctx, registerReq)
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		switch {
+		case errors.Is(err, model.ErrNicknameTaken):
+			return nil, status.Error(codes.AlreadyExists, err.Error())
+		default:
+			return nil, status.Error(codes.Internal, err.Error())
+		}
 	}
 
 	return &proto.RegResponse{

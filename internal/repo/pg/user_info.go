@@ -10,7 +10,10 @@ import (
 )
 
 func (s *Storage) UserInfoInsert(ctx context.Context, info *model.UserInfo) (userUUID uuid.UUID, err error) {
-	query := `insert into user_info (nickname, first_name, second_name, birthday, gender, hometown, about) values ($1, $2, $3, $4, $5, $6, $7) returning user_uuid`
+	query := `
+		insert into user_info (nickname, first_name, second_name, birthday, gender, hometown, about) 
+		values ($1, $2, $3, $4, $5, $6, $7) 
+		returning user_uuid`
 
 	conn, err := s.conn(ctx)
 	if err != nil {
