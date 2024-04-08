@@ -8,3 +8,6 @@ prepare:
 generate:
 	mkdir -p internal/pb
 	protoc -I . ./api/*.proto -I ./api --go-grpc_out=internal/pb --go_out=internal/pb
+
+run:
+	docker-compose up --build

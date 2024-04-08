@@ -39,7 +39,7 @@ services:
       adminer:
         condition: service_started
     ports:
-      - "5000:1244"
+      - "5000:5000"
       - "8080:8080"
     networks:
       - social-anti-club
