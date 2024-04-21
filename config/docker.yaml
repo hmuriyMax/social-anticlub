@@ -7,7 +7,8 @@ pg:
   pool_size: 10
 
 server:
-  http_port: 8080
+  http1_port: 8080
+  http2_port: 8081
   grpc_port: 5000
 
 user_service:

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"golang.org/x/net/http2"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -18,7 +17,8 @@ import (
 
 // Server - веб-сервер
 type Server struct {
-	httpServer  *http.Server
+	http1Server *http.Server
+	http2Server *http.Server
 	grpcServer  *grpc.Server
 	grpcPort    string
 	authService user_service.UserServiceServer
@@ -27,15 +27,21 @@ type Server struct {
 // NewServer создание Server
 func NewServer(ctx context.Context, userService user_service.UserServiceServer) *Server {
 	var (
-		httpPort = config.GetFromCtx(ctx).Server.HTTPPort
-		grpcPort = config.GetFromCtx(ctx).Server.GRPCPort
+		http1Port = config.GetFromCtx(ctx).Server.HTTP1Port
+		http2Port = config.GetFromCtx(ctx).Server.HTTP2Port
+		grpcPort  = config.GetFromCtx(ctx).Server.GRPCPort
 	)
 
 	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(errLogger, authParser))
 
 	rs := &Server{
-		httpServer: &http.Server{
-			Addr:     ":" + httpPort,
+		http1Server: &http.Server{
+			Addr:     ":" + http1Port,
+			Handler:  NewHTTPHandler("http://:" + http2Port),
+			ErrorLog: log.Default(),
+		},
+		http2Server: &http.Server{
+			Addr:     ":" + http2Port,
 			Handler:  grpcServer,
 			ErrorLog: log.Default(),
 		},
@@ -55,13 +61,14 @@ func (s *Server) Start(ctx context.Context) error {
 	errChan := make(chan error, 1)
 
 	go func(ctx context.Context) {
-		err := http2.ConfigureServer(s.httpServer, &http2.Server{})
-		if err != nil {
-			errChan <- err
-			return
+		err := s.http2Server.ListenAndServe()
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errChan <- fmt.Errorf("failed to start httpServer: %w", err)
 		}
+	}(localCtx)
 
-		err = s.httpServer.ListenAndServe()
+	go func(ctx context.Context) {
+		err := s.http1Server.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errChan <- fmt.Errorf("failed to start httpServer: %w", err)
 		}
@@ -83,7 +90,8 @@ func (s *Server) Start(ctx context.Context) error {
 		}
 	}(localCtx)
 
-	log.Printf("started server at %s", s.httpServer.Addr)
+	log.Printf("started http2 server at %s", s.http2Server.Addr)
+	log.Printf("started http1 server at %s", s.http1Server.Addr)
 
 	signalsChan := make(chan os.Signal, 1)
 	signal.Notify(signalsChan, os.Interrupt)
@@ -100,10 +108,16 @@ func (s *Server) Start(ctx context.Context) error {
 		break
 	}
 
-	err := s.httpServer.Shutdown(context.Background())
+	err := s.http1Server.Shutdown(context.Background())
 	if err != nil {
 		return fmt.Errorf("shutdown failed: %w", err)
 	}
+
+	err = s.http2Server.Shutdown(context.Background())
+	if err != nil {
+		return fmt.Errorf("shutdown failed: %w", err)
+	}
+
 	log.Println("HTTP server gracefully stopped")
 	s.grpcServer.GracefulStop()
 	log.Println("GRPC server gracefully stopped")
