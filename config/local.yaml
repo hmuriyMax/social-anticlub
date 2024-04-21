@@ -4,7 +4,7 @@ pg:
   db: social
   user: social
   pass: qwerty
-  pool_size: 10
+  pool_size: 100
 
 server:
   http_port: 8080

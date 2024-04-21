@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"golang.org/x/net/http2"
@@ -35,9 +36,10 @@ func NewServer(ctx context.Context, userService user_service.UserServiceServer) 
 
 	rs := &Server{
 		httpServer: &http.Server{
-			Addr:     ":" + httpPort,
-			Handler:  grpcServer,
-			ErrorLog: log.Default(),
+			Addr:      ":" + httpPort,
+			Handler:   grpcServer,
+			ErrorLog:  log.Default(),
+			TLSConfig: &tls.Config{},
 		},
 		grpcServer: grpcServer,
 		grpcPort:   grpcPort,
@@ -83,7 +85,8 @@ func (s *Server) Start(ctx context.Context) error {
 		}
 	}(localCtx)
 
-	log.Printf("started server at %s", s.httpServer.Addr)
+	log.Printf("started http server at %s", s.httpServer.Addr)
+	log.Printf("started grpc server at %s", s.grpcPort)
 
 	signalsChan := make(chan os.Signal, 1)
 	signal.Notify(signalsChan, os.Interrupt)

@@ -11,6 +11,7 @@ import (
 	proto "socialanticlub/internal/pb/user_service"
 	"socialanticlub/internal/pkg/users/model"
 	"time"
+	"unicode/utf8"
 )
 
 func (i *Implementation) Register(ctx context.Context, req *proto.RegRequest) (*proto.RegResponse, error) {
@@ -64,7 +65,7 @@ func validateRegister(req *proto.RegRequest) error {
 		return errors.New("info is required")
 	case req.Info.Name == "":
 		return errors.New("name is required")
-	case len(req.Info.Nickname) < 3 || len(req.Info.Nickname) > 15:
+	case utf8.RuneCountInString(req.Info.Nickname) < 3 || utf8.RuneCountInString(req.Info.Nickname) > 15:
 		return errors.New("invalid nickname")
 	case req.Info.Birthday == nil:
 		return errors.New("birthday is required")
