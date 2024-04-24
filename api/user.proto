@@ -3,7 +3,7 @@ package social_anti_club;
 option go_package = "/user_service";
 
 import "google/api/annotations.proto";
-import "api/user_models.proto";
+import "user_models.proto";
 
 service UserService {
   rpc Auth(AuthRequest) returns (AuthResponse) {
@@ -23,6 +23,13 @@ service UserService {
   rpc GetUser(GetUserRequest) returns (GetUserResponse) {
     option (google.api.http) = {
       post: "/user/get"
+      body: "*"
+    };
+  }
+
+  rpc Search(SearchRequest) returns (SearchResponse) {
+    option (google.api.http) = {
+      post: "/user/search"
       body: "*"
     };
   }
@@ -59,4 +66,13 @@ message GetUserRequest {
 message GetUserResponse {
   UserInfo user = 1;
   bool is_owner = 2;
+}
+
+message SearchRequest {
+  string firstName = 1;
+  string secondName = 2;
+}
+
+message SearchResponse {
+  repeated UserInfo users = 1;
 }
