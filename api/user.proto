@@ -27,7 +27,7 @@ service UserService {
     };
   }
 
-  rpc Search(SearchRequest) returns (SearchResponse) {
+  rpc SearchV1(SearchRequest) returns (SearchResponse) {
     option (google.api.http) = {
       post: "/user/search"
       body: "*"

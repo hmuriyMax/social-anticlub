@@ -25,7 +25,7 @@ type UserServiceClient interface {
 	Auth(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	Register(ctx context.Context, in *RegRequest, opts ...grpc.CallOption) (*RegResponse, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
-	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error)
+	SearchV1(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error)
 }
 
 type userServiceClient struct {
@@ -63,9 +63,9 @@ func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opt
 	return out, nil
 }
 
-func (c *userServiceClient) Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error) {
+func (c *userServiceClient) SearchV1(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error) {
 	out := new(SearchResponse)
-	err := c.cc.Invoke(ctx, "/social_anti_club.UserService/Search", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/social_anti_club.UserService/SearchV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ type UserServiceServer interface {
 	Auth(context.Context, *AuthRequest) (*AuthResponse, error)
 	Register(context.Context, *RegRequest) (*RegResponse, error)
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
-	Search(context.Context, *SearchRequest) (*SearchResponse, error)
+	SearchV1(context.Context, *SearchRequest) (*SearchResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -96,8 +96,8 @@ func (UnimplementedUserServiceServer) Register(context.Context, *RegRequest) (*R
 func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
-func (UnimplementedUserServiceServer) Search(context.Context, *SearchRequest) (*SearchResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Search not implemented")
+func (UnimplementedUserServiceServer) SearchV1(context.Context, *SearchRequest) (*SearchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchV1 not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -166,20 +166,20 @@ func _UserService_GetUser_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _UserService_SearchV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SearchRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).Search(ctx, in)
+		return srv.(UserServiceServer).SearchV1(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/social_anti_club.UserService/Search",
+		FullMethod: "/social_anti_club.UserService/SearchV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).Search(ctx, req.(*SearchRequest))
+		return srv.(UserServiceServer).SearchV1(ctx, req.(*SearchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -204,8 +204,8 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_GetUser_Handler,
 		},
 		{
-			MethodName: "Search",
-			Handler:    _UserService_Search_Handler,
+			MethodName: "SearchV1",
+			Handler:    _UserService_SearchV1_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

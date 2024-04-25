@@ -10,6 +10,7 @@ import (
 type (
 	usersProvider interface {
 		GetUserInfo(ctx context.Context, userUUID *uuid.UUID, nick *string) (*model.UserInfo, error)
+		Search(ctx context.Context, name, sName string) ([]*model.UserInfo, error)
 	}
 	authProvider interface {
 		Register(ctx context.Context, request *model.RegisterRequest) (*model.RegisterResponse, error)
