@@ -18,7 +18,7 @@ func (i *Implementation) GetUser(ctx context.Context, req *user_service.GetUserR
 	}
 
 	loginInfo := helpers.GetAuthInfo(ctx)
-	if err := i.usersProvider.CheckAuth(loginInfo.GetUUID(), loginInfo.GetToken()); err != nil {
+	if err := i.authProvider.CheckAuth(loginInfo.GetUUID(), loginInfo.GetToken()); err != nil {
 		return nil, status.Error(codes.Unauthenticated, err.Error())
 	}
 

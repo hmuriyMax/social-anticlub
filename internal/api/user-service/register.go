@@ -41,7 +41,7 @@ func (i *Implementation) Register(ctx context.Context, req *proto.RegRequest) (*
 		registerReq.UserInfo.Gender = helpers.Ptr(model.Gender(*req.Info.Gender))
 	}
 
-	res, err := i.usersProvider.Register(ctx, registerReq)
+	res, err := i.authProvider.Register(ctx, registerReq)
 	if err != nil {
 		switch {
 		case errors.Is(err, model.ErrNicknameTaken):

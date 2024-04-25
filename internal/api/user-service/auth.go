@@ -20,7 +20,7 @@ func (i *Implementation) Auth(ctx context.Context, req *user_service.AuthRequest
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	loginInfo, err := i.usersProvider.Login(ctx, login, req.GetPass())
+	loginInfo, err := i.authProvider.Login(ctx, login, req.GetPass())
 	if err != nil {
 		switch {
 		case errors.Is(err, model.ErrNoUser):

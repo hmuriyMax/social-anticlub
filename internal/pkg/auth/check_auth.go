@@ -1,4 +1,4 @@
-package users
+package auth
 
 import (
 	"fmt"
@@ -12,6 +12,10 @@ import (
 var SigningMethod = jwt.SigningMethodHS256
 
 func (s *Service) CheckAuth(userUUID uuid.UUID, tokenString string) error {
+	if userUUID == uuid.Nil && tokenString == "" {
+		return model.ErrPermissionDenied
+	}
+
 	token, err := jwt.ParseWithClaims(tokenString, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
 		if t.Method != SigningMethod {
 			return nil, model.ErrTokenInvalid

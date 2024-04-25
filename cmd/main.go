@@ -5,6 +5,7 @@ import (
 	"log"
 	user_service "socialanticlub/internal/api/user-service"
 	"socialanticlub/internal/helpers"
+	"socialanticlub/internal/pkg/auth"
 	"socialanticlub/internal/pkg/config"
 	"socialanticlub/internal/pkg/users"
 	"socialanticlub/internal/repo/pg"
@@ -28,11 +29,12 @@ func main() {
 		log.Fatalf("failed to create pg client: %v", err)
 	}
 
+	authService := auth.NewService(pgRepo)
 	userService := users.NewService(pgRepo)
 
 	srv := server.NewServer(
 		ctx,
-		user_service.NewImplementation(userService),
+		user_service.NewImplementation(userService, authService),
 	)
 
 	err = srv.Start(ctx)
