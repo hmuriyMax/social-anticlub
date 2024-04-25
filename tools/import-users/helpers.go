@@ -25,8 +25,8 @@ func ParseToRequest(row []string) (*user_service.RegRequest, error) {
 		return nil, fmt.Errorf("invalid name token length: expected %d, but got %d", 2, len(names))
 	}
 
-	name := names[0]
-	sName := names[1]
+	sName := names[0]
+	name := names[1]
 
 	bday, err := time.Parse("2006-01-02", birthDate)
 	if err != nil {
