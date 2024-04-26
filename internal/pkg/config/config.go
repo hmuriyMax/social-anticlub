@@ -23,8 +23,9 @@ type Config struct {
 	} `yaml:"pg"`
 
 	Server struct {
-		HTTPPort string `yaml:"http_port"`
-		GRPCPort string `yaml:"grpc_port"`
+		HTTPPort    string `yaml:"http_port"`
+		GRPCPort    string `yaml:"grpc_port"`
+		MetricsPort string `yaml:"metrics_port"`
 	} `yaml:"server"`
 
 	UserService struct {

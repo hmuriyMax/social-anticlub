@@ -9,6 +9,7 @@ pg:
 server:
   http_port: 8080
   grpc_port: 5000
+  metrics_port: 8082
 
 user_service:
   token_expiration: 1h
