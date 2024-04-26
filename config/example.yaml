@@ -9,6 +9,7 @@ pg:
 server:
   http_port:
   grpc_port:
+  prometheus_port:
 
 user_service:
   token_expiration:

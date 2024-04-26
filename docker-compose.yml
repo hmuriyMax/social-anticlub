@@ -24,7 +24,7 @@ services:
     networks:
       - social-anti-club
 
-  social-anti-club:
+  app:
     container_name: app
     build:
       context: .
@@ -38,9 +38,12 @@ services:
         condition: service_completed_successfully
       adminer:
         condition: service_started
+      prometheus:
+        condition: service_started
     ports:
       - "5000:5000"
       - "8080:8080"
+      - "8082:8082"
     networks:
       - social-anti-club
 
@@ -67,5 +70,33 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - social-anti-club
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: on-failure
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - social-anti-club
+
+  grafana:
+    image: grafana/grafana
+    restart: unless-stopped
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=secret
+    volumes:
+      - /etc/grafana/provisioning:/etc/grafana/provisioning
+      - /var/grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "3000:3000"
+    depends_on:
+      prometheus:
+        condition: service_started
     networks:
       - social-anti-club

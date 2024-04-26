@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/net/http2"
 	"google.golang.org/grpc"
 	"log"
@@ -32,7 +33,7 @@ func NewServer(ctx context.Context, userService user_service.UserServiceServer) 
 		grpcPort = config.GetFromCtx(ctx).Server.GRPCPort
 	)
 
-	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(errLogger, authParser))
+	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(errLogger, authParser, metrics))
 
 	rs := &Server{
 		httpServer: &http.Server{
@@ -85,8 +86,20 @@ func (s *Server) Start(ctx context.Context) error {
 		}
 	}(localCtx)
 
+	metricsPort := config.GetFromCtx(ctx).Server.MetricsPort
+	if metricsPort != "" {
+		go func(ctx context.Context) {
+			http.Handle("/metrics", promhttp.Handler())
+			err := http.ListenAndServe(fmt.Sprintf(":%s", metricsPort), nil)
+			if err != nil {
+				errChan <- fmt.Errorf("failed to listen: %w", err)
+			}
+		}(localCtx)
+		log.Printf("started metrics collector at :%s", metricsPort)
+	}
+
 	log.Printf("started http server at %s", s.httpServer.Addr)
-	log.Printf("started grpc server at %s", s.grpcPort)
+	log.Printf("started grpc server at :%s", s.grpcPort)
 
 	signalsChan := make(chan os.Signal, 1)
 	signal.Notify(signalsChan, os.Interrupt)
