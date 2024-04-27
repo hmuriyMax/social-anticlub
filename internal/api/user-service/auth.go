@@ -6,8 +6,8 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"socialanticlub/internal/api/user-service/converters"
 	"socialanticlub/internal/pb/user_service"
-	"socialanticlub/internal/pkg/users/model"
 )
 
 func (i *Implementation) Auth(ctx context.Context, req *user_service.AuthRequest) (*user_service.AuthResponse, error) {
@@ -22,14 +22,7 @@ func (i *Implementation) Auth(ctx context.Context, req *user_service.AuthRequest
 
 	loginInfo, err := i.authProvider.Login(ctx, login, req.GetPass())
 	if err != nil {
-		switch {
-		case errors.Is(err, model.ErrNoUser):
-			return nil, status.Error(codes.NotFound, err.Error())
-		case errors.Is(err, model.ErrWrongPassword):
-			return nil, status.Error(codes.Unauthenticated, err.Error())
-		default:
-			return nil, status.Error(codes.Internal, err.Error())
-		}
+		return nil, converters.ToRPCErr(err)
 	}
 	return &user_service.AuthResponse{
 		User: &user_service.LoginInfo{

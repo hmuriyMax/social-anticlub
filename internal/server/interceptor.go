@@ -34,6 +34,6 @@ func metrics(ctx context.Context, req interface{}, srv *grpc.UnaryServerInfo, ha
 	start := time.Now()
 	resp, err = handler(ctx, req)
 
-	go handlerRT.WithLabelValues(method).Set(time.Since(start).Seconds())
+	go handlerRT.WithLabelValues(method).Observe(time.Since(start).Seconds())
 	return resp, err
 }

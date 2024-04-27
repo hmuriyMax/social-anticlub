@@ -21,7 +21,7 @@ func (i *Implementation) SearchV1(ctx context.Context, req *user_service.SearchR
 
 	users, err := i.usersProvider.Search(ctx, req.GetFirstName(), req.GetSecondName())
 	if err != nil {
-		return nil, err
+		return nil, converters.ToRPCErr(err)
 	}
 
 	return &user_service.SearchResponse{

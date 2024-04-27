@@ -9,7 +9,6 @@ import (
 	"socialanticlub/internal/api/user-service/converters"
 	"socialanticlub/internal/helpers"
 	"socialanticlub/internal/pb/user_service"
-	"socialanticlub/internal/pkg/users/model"
 )
 
 func (i *Implementation) GetUser(ctx context.Context, req *user_service.GetUserRequest) (*user_service.GetUserResponse, error) {
@@ -35,12 +34,7 @@ func (i *Implementation) GetUser(ctx context.Context, req *user_service.GetUserR
 
 	userInfo, err := i.usersProvider.GetUserInfo(ctx, userUUID, nick)
 	if err != nil {
-		switch {
-		case errors.Is(err, model.ErrNoUser):
-			return nil, status.Error(codes.NotFound, err.Error())
-		default:
-			return nil, status.Error(codes.Internal, err.Error())
-		}
+		return nil, converters.ToRPCErr(err)
 	}
 
 	return &user_service.GetUserResponse{

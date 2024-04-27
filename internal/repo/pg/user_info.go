@@ -72,6 +72,8 @@ func (s *Storage) UsersSearch(ctx context.Context, name, sName string) (users []
 		args = append(args, name+"%", sName+"%")
 	}
 
+	query += " order by user_uuid"
+
 	conn, err := s.conn(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get connection: %w", err)

@@ -90,9 +90,10 @@ services:
     container_name: grafana
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=secret
+      - GF_LOG_LEVEL=error
     volumes:
-      - /etc/grafana/provisioning:/etc/grafana/provisioning
-      - /var/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
     ports:
       - "3000:3000"
     depends_on:

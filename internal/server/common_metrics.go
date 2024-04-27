@@ -9,16 +9,16 @@ import (
 var (
 	handlerRPS = promauto.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "handler_rps",
-			Help: "The total number of processed requests",
+			Name: "handler_rps_total",
+			Help: "The total number of processed requests with response codes",
 		},
 		[]string{"handler", "code"},
 	)
 
-	handlerRT = promauto.NewGaugeVec(
-		prometheus.GaugeOpts{
+	handlerRT = promauto.NewHistogramVec(
+		prometheus.HistogramOpts{
 			Name: "handler_rt",
-			Help: "The total number of processed requests",
+			Help: "Responce time of requests",
 		},
 		[]string{"handler"},
 	)

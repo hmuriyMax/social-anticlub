@@ -7,6 +7,7 @@ import (
 	"google.golang.org/genproto/googleapis/type/date"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"socialanticlub/internal/api/user-service/converters"
 	"socialanticlub/internal/helpers"
 	proto "socialanticlub/internal/pb/user_service"
 	"socialanticlub/internal/pkg/users/model"
@@ -43,12 +44,7 @@ func (i *Implementation) Register(ctx context.Context, req *proto.RegRequest) (*
 
 	res, err := i.authProvider.Register(ctx, registerReq)
 	if err != nil {
-		switch {
-		case errors.Is(err, model.ErrNicknameTaken):
-			return nil, status.Error(codes.AlreadyExists, err.Error())
-		default:
-			return nil, status.Error(codes.Internal, err.Error())
-		}
+		return nil, converters.ToRPCErr(err)
 	}
 
 	return &proto.RegResponse{

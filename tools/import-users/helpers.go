@@ -33,6 +33,10 @@ func ParseToRequest(row []string) (*user_service.RegRequest, error) {
 		return nil, err
 	}
 
+	// generating random date
+	bday = time.Date(bday.Year(), 1, 1, 0, 0, 0, 0, time.UTC)
+	bday = bday.Add(time.Hour * 24 * time.Duration(rand.Intn(365)))
+
 	genders := helpers.Keys(user_service.UserInfo_Gender_name)
 	userNameAsUUID, err := uuid.NewRandom()
 	if err != nil {
