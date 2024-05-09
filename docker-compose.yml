@@ -12,6 +12,7 @@ services:
       - POSTGRES_PASSWORD=qwerty
       - POSTGRES_USER=social
       - POSTGRES_DB=social
+
       - PGDATA=/var/pg
       - DATABASE_HOST=127.0.0.1
     ports:
@@ -96,8 +97,5 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards
     ports:
       - "3000:3000"
-    depends_on:
-      prometheus:
-        condition: service_started
     networks:
       - social-anti-club

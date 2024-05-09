@@ -3,13 +3,15 @@ package helpers
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 	"google.golang.org/grpc/metadata"
-	"socialanticlub/internal/pkg/users/model"
+	"strings"
 )
 
 const (
 	TokenHeader  = "token"
 	UserIDHeader = "user_id"
+	bearerPrefix = "Bearer "
 )
 
 type authHeaderKey struct{}
@@ -26,13 +28,17 @@ func ParseIncomingAuthInfo(ctx context.Context) context.Context {
 		return ctx
 	}
 
-	userID, parseErr := uuid.Parse(userIDString[0])
+	return SetTokenAndUserIDToCtx(ctx, userIDString[0], tokenString[0])
+}
+
+func SetTokenAndUserIDToCtx(ctx context.Context, userIDStr, token string) context.Context {
+	userID, parseErr := uuid.Parse(userIDStr)
 	if parseErr != nil {
 		return ctx
 	}
 
 	return context.WithValue(ctx, authHeaderKey{}, &model.TokenInfo{
-		Token:    tokenString[0],
+		Token:    strings.TrimPrefix(token, bearerPrefix),
 		UserUUID: userID,
 	})
 }

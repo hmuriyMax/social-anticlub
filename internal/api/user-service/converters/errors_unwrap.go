@@ -2,10 +2,10 @@ package converters
 
 import (
 	"context"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"socialanticlub/internal/pkg/users/model"
 )
 
 func ToRPCErr(err error) error {

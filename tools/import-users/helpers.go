@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/hmuriyMax/social-anticlub/internal/helpers"
+	"github.com/hmuriyMax/social-anticlub/internal/pb/user_service"
 	"google.golang.org/genproto/googleapis/type/date"
 	"math/rand"
-	"socialanticlub/internal/helpers"
-	"socialanticlub/internal/pb/user_service"
 	"strings"
 	"time"
 )

@@ -2,11 +2,11 @@ package user_service
 
 import (
 	"context"
+	"github.com/hmuriyMax/social-anticlub/internal/api/user-service/converters"
+	"github.com/hmuriyMax/social-anticlub/internal/helpers"
+	"github.com/hmuriyMax/social-anticlub/internal/pb/user_service"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"socialanticlub/internal/api/user-service/converters"
-	"socialanticlub/internal/helpers"
-	"socialanticlub/internal/pb/user_service"
 )
 
 func (i *Implementation) SearchV1(ctx context.Context, req *user_service.SearchRequest) (*user_service.SearchResponse, error) {

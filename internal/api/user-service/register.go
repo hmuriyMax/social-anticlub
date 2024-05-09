@@ -3,14 +3,14 @@ package user_service
 import (
 	"context"
 	"fmt"
+	"github.com/hmuriyMax/social-anticlub/internal/api/user-service/converters"
+	"github.com/hmuriyMax/social-anticlub/internal/helpers"
+	proto "github.com/hmuriyMax/social-anticlub/internal/pb/user_service"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/type/date"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"socialanticlub/internal/api/user-service/converters"
-	"socialanticlub/internal/helpers"
-	proto "socialanticlub/internal/pb/user_service"
-	"socialanticlub/internal/pkg/users/model"
 	"time"
 	"unicode/utf8"
 )

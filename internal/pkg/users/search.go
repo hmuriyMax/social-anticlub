@@ -2,9 +2,9 @@ package users
 
 import (
 	"context"
+	"github.com/hmuriyMax/social-anticlub/internal/helpers"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 	"github.com/pkg/errors"
-	"socialanticlub/internal/helpers"
-	"socialanticlub/internal/pkg/users/model"
 )
 
 func (s *Service) Search(ctx context.Context, name, sName string) ([]*model.UserInfo, error) {

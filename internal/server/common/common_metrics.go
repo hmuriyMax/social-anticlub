@@ -1,4 +1,4 @@
-package server
+package common
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	handlerRPS = promauto.NewCounterVec(
+	HandlerRPS = promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "handler_rps_total",
 			Help: "The total number of processed requests with response codes",
@@ -15,7 +15,7 @@ var (
 		[]string{"handler", "code"},
 	)
 
-	handlerRT = promauto.NewHistogramVec(
+	HandlerRT = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name: "handler_rt",
 			Help: "Responce time of requests",
@@ -25,12 +25,12 @@ var (
 )
 
 func Register() {
-	err := prometheus.Register(handlerRT)
+	err := prometheus.Register(HandlerRT)
 	if err != nil {
 		log.Printf("error registering handler: %v", err)
 	}
 
-	err = prometheus.Register(handlerRPS)
+	err = prometheus.Register(HandlerRPS)
 	if err != nil {
 		log.Printf("error registering handler: %v", err)
 	}

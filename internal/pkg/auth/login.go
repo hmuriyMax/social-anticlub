@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
-	"socialanticlub/internal/pkg/config"
-	"socialanticlub/internal/pkg/passwork"
-	"socialanticlub/internal/pkg/users/model"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/config"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/passwork"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 	"time"
 )
 

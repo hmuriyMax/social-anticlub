@@ -1,10 +1,10 @@
 package converters
 
 import (
+	"github.com/hmuriyMax/social-anticlub/internal/helpers"
+	"github.com/hmuriyMax/social-anticlub/internal/pb/user_service"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 	"google.golang.org/genproto/googleapis/type/date"
-	"socialanticlub/internal/helpers"
-	"socialanticlub/internal/pb/user_service"
-	"socialanticlub/internal/pkg/users/model"
 )
 
 func UserInfoToPB(user *model.UserInfo) *user_service.UserInfo {

@@ -4,16 +4,21 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/config"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 	"github.com/pkg/errors"
-	"socialanticlub/internal/pkg/config"
-	"socialanticlub/internal/pkg/users/model"
 )
 
 var SigningMethod = jwt.SigningMethodHS256
 
 func (s *Service) CheckAuth(userUUID uuid.UUID, tokenString string) error {
-	if userUUID == uuid.Nil && tokenString == "" {
-		return model.ErrPermissionDenied
+	switch {
+	case userUUID == uuid.Nil && tokenString == "":
+		return fmt.Errorf("%w: neither uuid nor token provided", model.ErrPermissionDenied)
+	case userUUID == uuid.Nil:
+		return fmt.Errorf("%w: user uuid not provided", model.ErrPermissionDenied)
+	case tokenString == "":
+		return fmt.Errorf("%w: token not provided", model.ErrPermissionDenied)
 	}
 
 	token, err := jwt.ParseWithClaims(tokenString, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {

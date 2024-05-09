@@ -3,8 +3,8 @@ package auth
 import (
 	"context"
 	"github.com/google/uuid"
-	"socialanticlub/internal/pkg/users/model"
-	"socialanticlub/internal/repo/pg"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
+	"github.com/hmuriyMax/social-anticlub/internal/repo/pg"
 )
 
 type userRepository interface {

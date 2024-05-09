@@ -3,8 +3,8 @@ package user_service
 import (
 	"context"
 	"github.com/google/uuid"
-	"socialanticlub/internal/pb/user_service"
-	"socialanticlub/internal/pkg/users/model"
+	"github.com/hmuriyMax/social-anticlub/internal/pb/user_service"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 )
 
 type (

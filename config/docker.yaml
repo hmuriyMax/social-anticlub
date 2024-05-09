@@ -5,12 +5,14 @@ pg:
   user: social
   pass: qwerty
   pool_size: 100
+  max_conn_lifetime: 1m
 
 server:
   http_port: 8080
   grpc_port: 5000
+  grpc_keep_alive: 120s
   metrics_port: 8082
 
 user_service:
-  token_expiration: 1h
+  token_expiration: 24h
   token_secret: very-secret-shit

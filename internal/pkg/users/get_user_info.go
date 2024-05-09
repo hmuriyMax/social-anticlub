@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"socialanticlub/internal/pkg/users/model"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 )
 
 func (s *Service) GetUserInfo(ctx context.Context, userUUID *uuid.UUID, nick *string) (*model.UserInfo, error) {

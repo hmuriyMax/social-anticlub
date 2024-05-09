@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 	"github.com/jackc/pgx/v5"
 	"github.com/pkg/errors"
-	"socialanticlub/internal/pkg/users/model"
 )
 
 var (

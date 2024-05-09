@@ -3,11 +3,11 @@ package user_service
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/hmuriyMax/social-anticlub/internal/api/user-service/converters"
+	"github.com/hmuriyMax/social-anticlub/internal/pb/user_service"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"socialanticlub/internal/api/user-service/converters"
-	"socialanticlub/internal/pb/user_service"
 )
 
 func (i *Implementation) Auth(ctx context.Context, req *user_service.AuthRequest) (*user_service.AuthResponse, error) {

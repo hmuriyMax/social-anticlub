@@ -2,8 +2,8 @@ package users
 
 import (
 	"context"
-	"socialanticlub/internal/helpers"
-	"socialanticlub/internal/pkg/users/model"
+	"github.com/hmuriyMax/social-anticlub/internal/helpers"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 	"strings"
 )
 
