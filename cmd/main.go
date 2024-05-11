@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
+	user_service "github.com/hmuriyMax/social-anticlub/internal/api/user-service"
+	"github.com/hmuriyMax/social-anticlub/internal/helpers"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/auth"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/config"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users"
+	"github.com/hmuriyMax/social-anticlub/internal/repo/pg"
+	"github.com/hmuriyMax/social-anticlub/internal/server"
 	"log"
-	user_service "socialanticlub/internal/api/user-service"
-	"socialanticlub/internal/helpers"
-	"socialanticlub/internal/pkg/config"
-	"socialanticlub/internal/pkg/users"
-	"socialanticlub/internal/repo/pg"
-	"socialanticlub/internal/server"
 	"strings"
 )
 
@@ -28,12 +29,16 @@ func main() {
 		log.Fatalf("failed to create pg client: %v", err)
 	}
 
+	authService := auth.NewService(pgRepo)
 	userService := users.NewService(pgRepo)
 
-	srv := server.NewServer(
+	srv, err := server.NewServer(
 		ctx,
-		user_service.NewImplementation(userService),
+		user_service.NewImplementation(userService, authService),
 	)
+	if err != nil {
+		log.Fatalf("failed to create server: %v", err)
+	}
 
 	err = srv.Start(ctx)
 	if err != nil {

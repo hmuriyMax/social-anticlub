@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/csv"
 	"flag"
+	"github.com/hmuriyMax/social-anticlub/internal/pb/user_service"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"io"
 	"log"
 	"os"
-	"socialanticlub/internal/pb/user_service"
 	"time"
 )
 

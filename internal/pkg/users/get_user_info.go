@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"socialanticlub/internal/helpers"
-	"socialanticlub/internal/pkg/users/model"
-	"strings"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 )
 
 func (s *Service) GetUserInfo(ctx context.Context, userUUID *uuid.UUID, nick *string) (*model.UserInfo, error) {
@@ -18,18 +16,5 @@ func (s *Service) GetUserInfo(ctx context.Context, userUUID *uuid.UUID, nick *st
 		return nil, model.ErrNoUser
 	}
 
-	requesterID := helpers.GetAuthInfo(ctx).GetUUID()
-	if requesterID != user.UUID {
-		hiddenUser := &model.UserInfo{
-			UUID:      user.UUID,
-			FirstName: user.FirstName,
-		}
-		if user.SecondName != nil {
-			hiddenUser.SecondName = helpers.Ptr(strings.SplitN(*user.SecondName, "", 2)[0])
-		}
-
-		user = hiddenUser
-	}
-
-	return user, nil
+	return ApplyAccessRoles(ctx, user), nil
 }

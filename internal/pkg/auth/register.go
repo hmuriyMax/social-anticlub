@@ -1,11 +1,11 @@
-package users
+package auth
 
 import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"socialanticlub/internal/pkg/passwork"
-	"socialanticlub/internal/pkg/users/model"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/passwork"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 )
 
 func (s *Service) Register(ctx context.Context, request *model.RegisterRequest) (*model.RegisterResponse, error) {

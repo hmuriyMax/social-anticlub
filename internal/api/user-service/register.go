@@ -3,13 +3,14 @@ package user_service
 import (
 	"context"
 	"fmt"
+	"github.com/hmuriyMax/social-anticlub/internal/api/user-service/converters"
+	"github.com/hmuriyMax/social-anticlub/internal/helpers"
+	proto "github.com/hmuriyMax/social-anticlub/internal/pb/user_service"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 	"github.com/pkg/errors"
 	"google.golang.org/genproto/googleapis/type/date"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"socialanticlub/internal/helpers"
-	proto "socialanticlub/internal/pb/user_service"
-	"socialanticlub/internal/pkg/users/model"
 	"time"
 	"unicode/utf8"
 )
@@ -41,14 +42,9 @@ func (i *Implementation) Register(ctx context.Context, req *proto.RegRequest) (*
 		registerReq.UserInfo.Gender = helpers.Ptr(model.Gender(*req.Info.Gender))
 	}
 
-	res, err := i.usersProvider.Register(ctx, registerReq)
+	res, err := i.authProvider.Register(ctx, registerReq)
 	if err != nil {
-		switch {
-		case errors.Is(err, model.ErrNicknameTaken):
-			return nil, status.Error(codes.AlreadyExists, err.Error())
-		default:
-			return nil, status.Error(codes.Internal, err.Error())
-		}
+		return nil, converters.ToRPCErr(err)
 	}
 
 	return &proto.RegResponse{

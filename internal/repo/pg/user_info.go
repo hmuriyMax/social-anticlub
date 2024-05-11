@@ -4,9 +4,15 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
 	"github.com/jackc/pgx/v5"
 	"github.com/pkg/errors"
-	"socialanticlub/internal/pkg/users/model"
+)
+
+var (
+	primaryCol = "user_uuid"
+	subCols    = []string{"nickname", "first_name", "second_name", "birthday", "gender", "hometown", "about"}
+	allCols    = append(subCols, primaryCol)
 )
 
 func (s *Storage) UserInfoInsert(ctx context.Context, info *model.UserInfo) (userUUID uuid.UUID, err error) {
@@ -36,7 +42,7 @@ func (s *Storage) UserInfoSelect(ctx context.Context, userUUID *uuid.UUID, nick 
 	if userUUID != nil {
 		query = query + ` where user_uuid = $1`
 		args = append(args, *userUUID)
-	} else if nick != nil {
+	} else {
 		query = query + ` where nickname = $1`
 		args = append(args, *nick)
 	}
@@ -55,4 +61,38 @@ func (s *Storage) UserInfoSelect(ctx context.Context, userUUID *uuid.UUID, nick 
 		return nil, nil
 	}
 	return info, errors.Wrap(err, "QueryRow")
+}
+
+func (s *Storage) UsersSearch(ctx context.Context, name, sName string) (users []*model.UserInfo, err error) {
+	query := `select user_uuid, nickname, first_name, second_name, birthday, gender, hometown, about from user_info`
+
+	var args []any
+	if name != "" && sName != "" {
+		query = query + ` where first_name LIKE $1 and second_name LIKE $2`
+		args = append(args, name+"%", sName+"%")
+	}
+
+	query += " order by user_uuid"
+
+	conn, err := s.conn(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get connection: %w", err)
+	}
+	defer conn.Release()
+
+	rows, err := conn.Query(ctx, query, args...)
+	if err != nil {
+		return nil, errors.Wrap(err, "Query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var info = &model.UserInfo{}
+		if err = rows.Scan(&info.UUID, &info.Nickname, &info.FirstName, &info.SecondName, &info.Birthday, &info.Gender, &info.HomeTown, &info.About); err != nil {
+			return nil, fmt.Errorf("scan error: %w", err)
+		}
+		users = append(users, info)
+	}
+
+	return users, nil
 }

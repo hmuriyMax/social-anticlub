@@ -3,13 +3,12 @@ package user_service
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/hmuriyMax/social-anticlub/internal/api/user-service/converters"
+	"github.com/hmuriyMax/social-anticlub/internal/helpers"
+	"github.com/hmuriyMax/social-anticlub/internal/pb/user_service"
 	"github.com/pkg/errors"
-	"google.golang.org/genproto/googleapis/type/date"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"socialanticlub/internal/helpers"
-	"socialanticlub/internal/pb/user_service"
-	"socialanticlub/internal/pkg/users/model"
 )
 
 func (i *Implementation) GetUser(ctx context.Context, req *user_service.GetUserRequest) (*user_service.GetUserResponse, error) {
@@ -18,7 +17,7 @@ func (i *Implementation) GetUser(ctx context.Context, req *user_service.GetUserR
 	}
 
 	loginInfo := helpers.GetAuthInfo(ctx)
-	if err := i.usersProvider.CheckAuth(loginInfo.GetUUID(), loginInfo.GetToken()); err != nil {
+	if err := i.authProvider.CheckAuth(loginInfo.GetUUID(), loginInfo.GetToken()); err != nil {
 		return nil, status.Error(codes.Unauthenticated, err.Error())
 	}
 
@@ -35,39 +34,12 @@ func (i *Implementation) GetUser(ctx context.Context, req *user_service.GetUserR
 
 	userInfo, err := i.usersProvider.GetUserInfo(ctx, userUUID, nick)
 	if err != nil {
-		switch {
-		case errors.Is(err, model.ErrNoUser):
-			return nil, status.Error(codes.NotFound, err.Error())
-		default:
-			return nil, status.Error(codes.Internal, err.Error())
-		}
-	}
-
-	respUser := &user_service.UserInfo{
-		Name:     userInfo.FirstName,
-		Surname:  userInfo.SecondName,
-		Hobbies:  userInfo.About,
-		Hometown: userInfo.HomeTown,
-	}
-
-	isOwner := false
-
-	if !userInfo.Birthday.IsZero() {
-		respUser.Birthday = &date.Date{
-			Year:  int32(userInfo.Birthday.Year()),
-			Month: int32(userInfo.Birthday.Month()),
-			Day:   int32(userInfo.Birthday.Day()),
-		}
-		isOwner = true
-	}
-
-	if userInfo.Gender != nil {
-		respUser.Gender = helpers.Ptr(user_service.UserInfo_Gender(*userInfo.Gender))
+		return nil, converters.ToRPCErr(err)
 	}
 
 	return &user_service.GetUserResponse{
-		User:    respUser,
-		IsOwner: isOwner,
+		User:    converters.UserInfoToPB(userInfo),
+		IsOwner: !userInfo.Birthday.IsZero(),
 	}, nil
 
 }

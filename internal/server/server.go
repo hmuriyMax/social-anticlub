@@ -2,19 +2,22 @@ package server
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"fmt"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/hmuriyMax/social-anticlub/internal/helpers"
+	"github.com/hmuriyMax/social-anticlub/internal/pb/user_service"
+	"github.com/hmuriyMax/social-anticlub/internal/pkg/config"
+	serverGRPC "github.com/hmuriyMax/social-anticlub/internal/server/grpc"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"golang.org/x/net/http2"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
-	"socialanticlub/internal/pb/user_service"
-	"socialanticlub/internal/pkg/config"
+	"strings"
 	"time"
 )
 
@@ -27,27 +30,51 @@ type Server struct {
 }
 
 // NewServer создание Server
-func NewServer(ctx context.Context, userService user_service.UserServiceServer) *Server {
+func NewServer(ctx context.Context, userService user_service.UserServiceServer) (*Server, error) {
 	var (
 		httpPort = config.GetFromCtx(ctx).Server.HTTPPort
 		grpcPort = config.GetFromCtx(ctx).Server.GRPCPort
 	)
 
-	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(errLogger, authParser, metrics))
+	// GRPC server
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(serverGRPC.ErrLogger, serverGRPC.AuthParser, serverGRPC.Metrics, serverGRPC.Recover),
+	)
+	user_service.RegisterUserServiceServer(grpcServer, userService)
+
+	// REST server
+	var (
+		//rtr     = serverHTTP.RouteHandlers(serverHTTP.WithHandlersTimeout(config.GetFromCtx(ctx).Server.GRPCKeepAlive))
+		grpcMux = runtime.NewServeMux(
+			runtime.WithUnescapingMode(runtime.UnescapingModeDefault),
+			runtime.WithIncomingHeaderMatcher(func(s string) (string, bool) {
+				switch strings.ToLower(s) {
+				case helpers.TokenHeader, helpers.UserIDHeader:
+					return s, true
+				default:
+					return runtime.DefaultHeaderMatcher(s)
+				}
+			}),
+		)
+		opts = []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	)
+
+	err := user_service.RegisterUserServiceHandlerFromEndpoint(ctx, grpcMux, ":5000", opts)
+	if err != nil {
+		return nil, fmt.Errorf("error registering user service REST: %w", err)
+	}
 
 	rs := &Server{
 		httpServer: &http.Server{
-			Addr:      ":" + httpPort,
-			Handler:   grpcServer,
-			ErrorLog:  log.Default(),
-			TLSConfig: &tls.Config{},
+			Addr:     ":" + httpPort,
+			Handler:  grpcMux,
+			ErrorLog: log.Default(),
 		},
 		grpcServer: grpcServer,
 		grpcPort:   grpcPort,
 	}
 
-	user_service.RegisterUserServiceServer(rs.grpcServer, userService)
-	return rs
+	return rs, nil
 }
 
 // Start запускает сервер
@@ -57,22 +84,18 @@ func (s *Server) Start(ctx context.Context) error {
 
 	errChan := make(chan error, 1)
 
+	// http server
 	go func(ctx context.Context) {
-		err := http2.ConfigureServer(s.httpServer, &http2.Server{})
-		if err != nil {
-			errChan <- err
-			return
-		}
-
-		err = s.httpServer.ListenAndServe()
+		err := s.httpServer.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errChan <- fmt.Errorf("failed to start httpServer: %w", err)
 		}
 	}(localCtx)
 
+	// grpc server
 	go func(ctx context.Context) {
 		listener := net.ListenConfig{
-			KeepAlive: 5 * time.Second,
+			KeepAlive: helpers.ValueOrDefault(config.GetFromCtx(ctx).Server.GRPCKeepAlive, 1*time.Minute),
 		}
 
 		lis, err := listener.Listen(ctx, "tcp", fmt.Sprintf(":%s", s.grpcPort))
@@ -86,6 +109,7 @@ func (s *Server) Start(ctx context.Context) error {
 		}
 	}(localCtx)
 
+	// metrics http
 	metricsPort := config.GetFromCtx(ctx).Server.MetricsPort
 	if metricsPort != "" {
 		go func(ctx context.Context) {

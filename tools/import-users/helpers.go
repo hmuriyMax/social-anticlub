@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/hmuriyMax/social-anticlub/internal/helpers"
+	"github.com/hmuriyMax/social-anticlub/internal/pb/user_service"
 	"google.golang.org/genproto/googleapis/type/date"
 	"math/rand"
-	"socialanticlub/internal/helpers"
-	"socialanticlub/internal/pb/user_service"
 	"strings"
 	"time"
 )
@@ -25,13 +25,17 @@ func ParseToRequest(row []string) (*user_service.RegRequest, error) {
 		return nil, fmt.Errorf("invalid name token length: expected %d, but got %d", 2, len(names))
 	}
 
-	name := names[0]
-	sName := names[1]
+	sName := names[0]
+	name := names[1]
 
 	bday, err := time.Parse("2006-01-02", birthDate)
 	if err != nil {
 		return nil, err
 	}
+
+	// generating random date
+	bday = time.Date(bday.Year(), 1, 1, 0, 0, 0, 0, time.UTC)
+	bday = bday.Add(time.Hour * 24 * time.Duration(rand.Intn(365)))
 
 	genders := helpers.Keys(user_service.UserInfo_Gender_name)
 	userNameAsUUID, err := uuid.NewRandom()
