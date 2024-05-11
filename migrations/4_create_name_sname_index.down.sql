@@ -1,0 +1,1 @@
+drop index if exists user_info_names;

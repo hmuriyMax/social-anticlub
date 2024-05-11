@@ -35,6 +35,17 @@ func Metrics(ctx context.Context, req interface{}, srv *grpc.UnaryServerInfo, ha
 	start := time.Now()
 	resp, err = handler(ctx, req)
 
-	go common.HandlerRT.WithLabelValues(method).Observe(time.Since(start).Seconds())
+	common.HandlerRT.WithLabelValues(method).Observe(time.Since(start).Seconds())
 	return resp, err
+}
+
+func Recover(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("%+v", r)
+			err = status.Errorf(codes.Internal, "Internal server error: %v", r)
+		}
+	}()
+	resp, err = handler(ctx, req)
+	return
 }

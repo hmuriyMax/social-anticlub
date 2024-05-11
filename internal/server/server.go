@@ -38,7 +38,7 @@ func NewServer(ctx context.Context, userService user_service.UserServiceServer) 
 
 	// GRPC server
 	grpcServer := grpc.NewServer(
-		grpc.ChainUnaryInterceptor(serverGRPC.ErrLogger, serverGRPC.AuthParser, serverGRPC.Metrics),
+		grpc.ChainUnaryInterceptor(serverGRPC.ErrLogger, serverGRPC.AuthParser, serverGRPC.Metrics, serverGRPC.Recover),
 	)
 	user_service.RegisterUserServiceServer(grpcServer, userService)
 

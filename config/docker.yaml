@@ -4,7 +4,7 @@ pg:
   db: social
   user: social
   pass: qwerty
-  pool_size: 100
+  pool_size: 1000
   max_conn_lifetime: 1m
 
 server:

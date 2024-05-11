@@ -68,7 +68,7 @@ func (s *Storage) UsersSearch(ctx context.Context, name, sName string) (users []
 
 	var args []any
 	if name != "" && sName != "" {
-		query = query + ` where first_name ILIKE $1 and second_name ILIKE $2`
+		query = query + ` where first_name LIKE $1 and second_name LIKE $2`
 		args = append(args, name+"%", sName+"%")
 	}
 
