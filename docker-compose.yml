@@ -8,15 +8,37 @@ services:
     container_name: postgres
     restart: on-failure
     image: postgres:latest
+    command: -c config_file=/etc/postgresql.conf
     environment:
       - POSTGRES_PASSWORD=qwerty
       - POSTGRES_USER=social
       - POSTGRES_DB=social
-
-      - PGDATA=/var/pg
-      - DATABASE_HOST=127.0.0.1
+    volumes:
+      - /data/pg-master/:/var/lib/postgresql/data
+      - ./config
+      - :/etc
     ports:
-      - "5436:5432"
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U social -d social" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - social-anti-club
+
+  db-slave:
+    container_name: postgres-slave
+    restart: on-failure
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=qwerty
+      - POSTGRES_USER=social
+      - POSTGRES_DB=social
+    volumes:
+      - $PWD/data/pg-slave/:/var/lib/pg-slave/data
+    ports:
+      - "6532:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U social -d social" ]
       interval: 5s
@@ -65,9 +87,9 @@ services:
   migrator:
     container_name: migrator
     image: migrate/migrate
-    command: [ "-database", "postgres://social:qwerty@db:5432/social?sslmode=disable", "-path", "/migrations", "up" ]
+    command: ["-database", "postgres://social:qwerty@db:5432/social?sslmode=disable", "-source", "file:///migrations", "-verbose", "up" ]
     volumes:
-      - $PWD/migrations:/migrations
+      - ./migrations:/migrations
     depends_on:
       db:
         condition: service_healthy
@@ -99,3 +121,7 @@ services:
       - "3000:3000"
     networks:
       - social-anti-club
+
+volumes:
+  pg-master:
+  pg-slave:
