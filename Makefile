@@ -14,4 +14,4 @@ generate:
  			--grpc-gateway_opt generate_unbound_methods=true
 
 run:
-	docker-compose up --build
+	docker-compose up --build --renew-anon-volumes --remove-orphans --force-recreate

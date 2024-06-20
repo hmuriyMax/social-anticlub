@@ -8,17 +8,17 @@ services:
     container_name: postgres
     restart: on-failure
     image: postgres:latest
-    command: -c config_file=/etc/postgresql.conf
+    command: ["postgres", "-c", "config_file=/etc/postgresql.conf"]
     environment:
       - POSTGRES_PASSWORD=qwerty
       - POSTGRES_USER=social
       - POSTGRES_DB=social
     volumes:
-      - /data/pg-master/:/var/lib/postgresql/data
-      - ./config
-      - :/etc
+      - /data/pg/:/var/lib/postgresql/data
+      - ./config/pg/postgresql.conf:/etc/postgresql.conf
+      - ./config/pg/pg_hba.conf:/etc/pg_hba.conf
     ports:
-      - "5432:5432"
+      - "6532:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U social -d social" ]
       interval: 5s
@@ -31,14 +31,20 @@ services:
     container_name: postgres-slave
     restart: on-failure
     image: postgres:latest
+    command: >
+      bash 
+      -c "
+      pg_basebackup -P -R -X stream -c fast --dbname=postgresql://repluser:replsocial@db --pgdata=/var/lib/postgresql/data &&
+      docker-entrypoint.sh postgres"
     environment:
       - POSTGRES_PASSWORD=qwerty
-      - POSTGRES_USER=social
-      - POSTGRES_DB=social
-    volumes:
-      - $PWD/data/pg-slave/:/var/lib/pg-slave/data
+    depends_on:
+      db:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
     ports:
-      - "6532:5432"
+      - "7632:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U social -d social" ]
       interval: 5s
@@ -56,6 +62,8 @@ services:
     restart: on-failure
     depends_on:
       db:
+        condition: service_healthy
+      db-slave:
         condition: service_healthy
       migrator:
         condition: service_completed_successfully
@@ -108,20 +116,16 @@ services:
       - social-anti-club
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana-enterprise
     restart: unless-stopped
     container_name: grafana
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=secret
       - GF_LOG_LEVEL=error
+    user: '0'
     volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana:/var/lib/grafana
     ports:
       - "3000:3000"
     networks:
       - social-anti-club
-
-volumes:
-  pg-master:
-  pg-slave:
