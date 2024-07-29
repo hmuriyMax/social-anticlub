@@ -12,7 +12,7 @@ import (
 func (s *Storage) UserAuthInsert(ctx context.Context, auth *model.Login) error {
 	query := `insert into user_auth (user_uuid, pass_hash) values ($1, $2)`
 
-	conn, err := s.conn(ctx)
+	conn, err := s.pg.Conn(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get connection: %w", err)
 	}
@@ -25,7 +25,7 @@ func (s *Storage) UserAuthInsert(ctx context.Context, auth *model.Login) error {
 func (s *Storage) UserAuthSelect(ctx context.Context, login uuid.UUID) (*model.Login, error) {
 	query := `select user_uuid, pass_hash from user_auth where user_uuid = $1`
 
-	conn, err := s.conn(ctx)
+	conn, err := s.pg.Conn(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -1,11 +1,23 @@
 pg:
-  host: db
-  port: 5432
-  db: social
-  user: social
-  pass: qwerty
-  pool_size: 1000
-  max_conn_lifetime: 1m
+  master:
+    host: db
+    port: 5432
+    db: social
+    user: social
+    pass: qwerty
+    pool_size: 100
+    max_conn_lifetime: 1m
+
+  async:
+    host: db-slave
+    port: 5432
+    db: social
+    user: social
+    pass: qwerty
+    pool_size: 100
+    max_conn_lifetime: 1m
+
+  default_role: master
 
 server:
   http_port: 8080

@@ -19,6 +19,7 @@ func ApplyAccessRoles(ctx context.Context, user *model.UserInfo) *model.UserInfo
 		hiddenUser := model.UserInfo{
 			UUID:      user.UUID,
 			FirstName: user.FirstName,
+			Nickname:  user.Nickname,
 		}
 		if user.SecondName != nil {
 			hiddenUser.SecondName = helpers.Ptr(strings.SplitN(*user.SecondName, "", 2)[0])

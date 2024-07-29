@@ -12,8 +12,8 @@ import (
 const configKey = "config"
 
 // Config struct for webapp config
-type Config struct {
-	PG struct {
+type (
+	PGCnf struct {
 		Host            string `yaml:"host"`
 		Port            uint16 `yaml:"port"`
 		DB              string `yaml:"db"`
@@ -21,20 +21,28 @@ type Config struct {
 		Pass            string `yaml:"pass"`
 		PoolSize        int32  `yaml:"pool_size"`
 		MaxConnLifetime string `yaml:"max_conn_lifetime"`
-	} `yaml:"pg"`
+	}
 
-	Server struct {
-		HTTPPort      string        `yaml:"http_port"`
-		GRPCPort      string        `yaml:"grpc_port"`
-		GRPCKeepAlive time.Duration `yaml:"grpc_keep_alive"`
-		MetricsPort   string        `yaml:"metrics_port"`
-	} `yaml:"server"`
+	Config struct {
+		PG struct {
+			Master      PGCnf  `yaml:"master"`
+			Async       PGCnf  `yaml:"async"`
+			DefaultRole string `yaml:"default_role"`
+		} `yaml:"pg"`
 
-	UserService struct {
-		TokenExpiration time.Duration `yaml:"token_expiration"`
-		JWTSecret       string        `yaml:"token_secret"`
-	} `yaml:"user_service"`
-}
+		Server struct {
+			HTTPPort      string        `yaml:"http_port"`
+			GRPCPort      string        `yaml:"grpc_port"`
+			GRPCKeepAlive time.Duration `yaml:"grpc_keep_alive"`
+			MetricsPort   string        `yaml:"metrics_port"`
+		} `yaml:"server"`
+
+		UserService struct {
+			TokenExpiration time.Duration `yaml:"token_expiration"`
+			JWTSecret       string        `yaml:"token_secret"`
+		} `yaml:"user_service"`
+	}
+)
 
 var GlobalConfig *Config
 

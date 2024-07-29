@@ -6,6 +6,14 @@ pg:
   pass:
   pool_size:
 
+pg-async:
+  host:
+  port:
+  db:
+  user:
+  pass:
+  pool_size:
+
 server:
   http_port:
   grpc_port:

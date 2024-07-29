@@ -8,6 +8,7 @@ import (
 	"github.com/hmuriyMax/social-anticlub/internal/pkg/config"
 	"github.com/hmuriyMax/social-anticlub/internal/pkg/users"
 	"github.com/hmuriyMax/social-anticlub/internal/repo/pg"
+	"github.com/hmuriyMax/social-anticlub/internal/repo/pg/roles"
 	"github.com/hmuriyMax/social-anticlub/internal/server"
 	"log"
 	"strings"
@@ -24,7 +25,12 @@ func main() {
 
 	ctx = config.SetToCtx(ctx, cnf)
 
-	pgRepo, err := pg.NewClient(ctx)
+	pgManager, err := roles.NewPG(ctx, cnf)
+	if err != nil {
+		log.Fatalf("failed to create pg role manager: %v", err)
+	}
+
+	pgRepo, err := pg.NewClient(pgManager)
 	if err != nil {
 		log.Fatalf("failed to create pg client: %v", err)
 	}

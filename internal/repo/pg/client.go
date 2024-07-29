@@ -2,36 +2,26 @@ package pg
 
 import (
 	"context"
-	"fmt"
-	"github.com/hmuriyMax/social-anticlub/internal/pkg/config"
+	"github.com/hmuriyMax/social-anticlub/internal/repo/pg/roles"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// dependencies
+type (
+	pg interface {
+		roles.Transaction
+		Conn(ctx context.Context, opts ...roles.Option) (*pgxpool.Conn, error)
+	}
+)
+
 type Storage struct {
-	pool *pgxpool.Pool
+	pg pg
+	roles.Transaction
 }
 
-func NewClient(ctx context.Context) (*Storage, error) {
-	connStr := fmt.Sprintf("user='%s' password='%s' host=%s port=%d dbname=%s pool_max_conns=%d pool_max_conn_lifetime=%s",
-		config.GetFromCtx(ctx).PG.User,
-		config.GetFromCtx(ctx).PG.Pass,
-		config.GetFromCtx(ctx).PG.Host,
-		config.GetFromCtx(ctx).PG.Port,
-		config.GetFromCtx(ctx).PG.DB,
-		config.GetFromCtx(ctx).PG.PoolSize,
-		config.GetFromCtx(ctx).PG.MaxConnLifetime,
-	)
-
-	pool, err := pgxpool.New(ctx, connStr)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create pool: %w", err)
-	}
-
-	if err = pool.Ping(ctx); err != nil {
-		return nil, fmt.Errorf("failed to ping pool: %w", err)
-	}
-
+func NewClient(pg pg) (*Storage, error) {
 	return &Storage{
-		pool: pool,
+		pg:          pg,
+		Transaction: pg,
 	}, nil
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
+	"github.com/hmuriyMax/social-anticlub/internal/repo/pg/roles"
 	"github.com/jackc/pgx/v5"
 	"github.com/pkg/errors"
 )
@@ -21,7 +22,7 @@ func (s *Storage) UserInfoInsert(ctx context.Context, info *model.UserInfo) (use
 		values ($1, $2, $3, $4, $5, $6, $7) 
 		returning user_uuid`
 
-	conn, err := s.conn(ctx)
+	conn, err := s.pg.Conn(ctx)
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -47,7 +48,7 @@ func (s *Storage) UserInfoSelect(ctx context.Context, userUUID *uuid.UUID, nick 
 		args = append(args, *nick)
 	}
 
-	conn, err := s.conn(ctx)
+	conn, err := s.pg.Conn(ctx, roles.WithRole(roles.RoleAsync))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get connection: %w", err)
 	}
@@ -56,7 +57,7 @@ func (s *Storage) UserInfoSelect(ctx context.Context, userUUID *uuid.UUID, nick 
 	info = &model.UserInfo{}
 	err = conn.
 		QueryRow(ctx, query, args...).
-		Scan(&info.UUID, &info.FirstName, &info.FirstName, &info.SecondName, &info.Birthday, &info.Gender, &info.HomeTown, &info.About)
+		Scan(&info.UUID, &info.Nickname, &info.FirstName, &info.SecondName, &info.Birthday, &info.Gender, &info.HomeTown, &info.About)
 	if err != nil && errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -74,7 +75,7 @@ func (s *Storage) UsersSearch(ctx context.Context, name, sName string) (users []
 
 	query += " order by user_uuid"
 
-	conn, err := s.conn(ctx)
+	conn, err := s.pg.Conn(ctx, roles.WithRole(roles.RoleAsync))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get connection: %w", err)
 	}

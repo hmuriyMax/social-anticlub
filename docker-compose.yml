@@ -7,11 +7,11 @@ services:
   db:
     container_name: postgres
     restart: on-failure
-    image: postgres:latest
+    image: postgres:16.3
     command: ["postgres", "-c", "config_file=/etc/postgresql.conf"]
     environment:
-      - POSTGRES_PASSWORD=qwerty
-      - POSTGRES_USER=social
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_USER=master
       - POSTGRES_DB=social
     volumes:
       - /data/pg/:/var/lib/postgresql/data
@@ -27,17 +27,17 @@ services:
     networks:
       - social-anti-club
 
-  db-slave:
+  async-bobr:
     container_name: postgres-slave
     restart: on-failure
-    image: postgres:latest
+    image: postgres:16.3
     command: >
       bash 
       -c "
-      pg_basebackup -P -R -X stream -c fast --dbname=postgresql://repluser:replsocial@db --pgdata=/var/lib/postgresql/data &&
+      pg_basebackup -R -X stream --dbname=postgresql://repluser:replsocial@db --pgdata=/var/lib/postgresql/data &&
       docker-entrypoint.sh postgres"
     environment:
-      - POSTGRES_PASSWORD=qwerty
+      - POSTGRES_PASSWORD=secret
     depends_on:
       db:
         condition: service_healthy
@@ -53,6 +53,9 @@ services:
     networks:
       - social-anti-club
 
+#  async-jezik:
+    
+
   app:
     container_name: app
     build:
@@ -63,7 +66,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      db-slave:
+      async-bobr:
         condition: service_healthy
       migrator:
         condition: service_completed_successfully
@@ -80,7 +83,7 @@ services:
 
   adminer:
     container_name: adminer
-    image: adminer
+    image: adminer:4.8.1
     restart: on-failure
     ports:
       - "8084:8080"
@@ -94,8 +97,8 @@ services:
 
   migrator:
     container_name: migrator
-    image: migrate/migrate
-    command: ["-database", "postgres://social:qwerty@db:5432/social?sslmode=disable", "-source", "file:///migrations", "-verbose", "up" ]
+    image: migrate/migrate:v4.17.1
+    command: ["-database", "postgres://master:secret@db:5432/social?sslmode=disable", "-source", "file:///migrations", "-verbose", "up" ]
     volumes:
       - ./migrations:/migrations
     depends_on:
@@ -104,12 +107,46 @@ services:
     networks:
       - social-anti-club
 
+  pg-exp-master:
+    container_name: pg-exp-master
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    restart: on-failure
+    ports:
+      - "65321:9187"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATA_SOURCE_NAME=postgresql://master:secret@db:5432/social?sslmode=disable
+    networks:
+      - social-anti-club
+
+  pg-exp-async:
+    container_name: pg-exp-async
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    restart: on-failure
+    ports:
+      - "65322:9187"
+    depends_on:
+      async-bobr:
+        condition: service_healthy
+    environment:
+      - DATA_SOURCE_NAME=postgresql://master:secret@db-slave:5432/social?sslmode=disable
+    networks:
+      - social-anti-club
+
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:v2.53.0
     container_name: prometheus
     restart: on-failure
     volumes:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus:/prometheus
+    depends_on:
+      pg-exp-master:
+        condition: service_started
+      pg-exp-async:
+        condition: service_started
     ports:
       - "9090:9090"
     networks:
@@ -129,3 +166,19 @@ services:
       - "3000:3000"
     networks:
       - social-anti-club
+
+  etcd:
+    image: bitnami/etcd:latest
+    container_name: etcd
+    restart: on-failure
+    environment:
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+      - ETCD_ROOT_PASSWORD=qwerty
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    networks:
+      - social-anti-club
+
+volumes:
+  prometheus:

@@ -4,11 +4,11 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/hmuriyMax/social-anticlub/internal/pkg/users/model"
-	"github.com/hmuriyMax/social-anticlub/internal/repo/pg"
+	"github.com/hmuriyMax/social-anticlub/internal/repo/pg/roles"
 )
 
 type userRepository interface {
-	pg.Connector
+	roles.Transaction
 
 	UserInfoInsert(ctx context.Context, info *model.UserInfo) (userUUID uuid.UUID, err error)
 	UserInfoSelect(ctx context.Context, userUUID *uuid.UUID, nick *string) (info *model.UserInfo, err error)
